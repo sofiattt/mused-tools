@@ -67,16 +67,11 @@
       creative: (name, ctx) => `You are a senior brand strategist. Brand: "${name}". Context: ${ctx}\n\nDefine the creative direction for this brand. Be specific and visual — describe real font styles, real color moods, real image aesthetics.\n\nReturn ONLY this JSON:\n${SHAPES.creative}`,
     };
 
-    async function callAPI(sectionId, name, ctx, apiKey) {
+    async function callAPI(sectionId, name, ctx) {
       const prompt = PROMPTS[sectionId](name, ctx);
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
+      const response = await fetch("/api/chat", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": apiKey,
-          "anthropic-version": "2023-06-01",
-          "anthropic-dangerous-direct-browser-access": "true",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "claude-opus-4-5",
           max_tokens: 1000,
@@ -250,9 +245,7 @@
     ];
 
     function App() {
-      const [tab, setTab] = useState("setup");
-      const [apiKey, setApiKey] = useState("");
-      const [apiKeySaved, setApiKeySaved] = useState(false);
+      
       const [section, setSection] = useState("mission");
       const [clientName, setCN] = useState("");
       const [clientCtx, setCC] = useState("");
@@ -270,22 +263,13 @@
       const activeSec = SECTIONS.find(s => s.id === section);
       const progress = Object.keys(generated).length;
 
-      const saveKey = () => {
-        if (apiKey.trim().startsWith("sk-ant-")) {
-          setApiKeySaved(true);
-          setTab("studio");
-        } else {
-          setErr("Key must start with sk-ant-");
-        }
-      };
-
       const switchMain = (t) => { setMainTab(t); setGenerated({}); setErr(""); setCN(""); setCC(""); setSection("mission"); };
 
       const genOne = async (sid) => {
         if (!activeName.trim() || !activeCtx.trim()) { setErr("Fill in client name and brief."); return; }
         setErr(""); setSpinning(sid);
         try {
-          const r = await callAPI(sid, activeName.trim(), activeCtx.trim(), apiKey.trim());
+          const r = await callAPI(sid, activeName.trim(), activeCtx.trim());
           setGenerated(p => ({...p, [sid]: r}));
         } catch(e) { setErr(e.message); }
         setSpinning(null);
@@ -297,7 +281,7 @@
         for (const s of SECTIONS) {
           setSpinning(s.id);
           try {
-            const r = await callAPI(s.id, activeName.trim(), activeCtx.trim(), apiKey.trim());
+            const r = await callAPI(s.id, activeName.trim(), activeCtx.trim());
             setGenerated(p => ({...p, [s.id]: r}));
           } catch(e) { setErr(`Stopped at "${s.label}": ${e.message}`); break; }
         }
@@ -306,45 +290,6 @@
 
       const inp = {width:"100%",padding:"11px 14px",background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.12)",color:C.cream,fontFamily:"Georgia,serif",fontSize:14,lineHeight:1.6,borderRadius:0};
 
-      // ── API KEY SETUP SCREEN ──────────────────────────────────────────────
-      if (tab === "setup") {
-        return (
-          <div style={{minHeight:"100vh",background:C.black,display:"flex",alignItems:"center",justifyContent:"center",padding:24}}>
-            <div style={{width:"100%",maxWidth:480}}>
-              <div style={{display:"flex",flexDirection:"column",alignItems:"center",marginBottom:40}}>
-                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:900,fontSize:64,color:C.cream,letterSpacing:"-0.02em",lineHeight:0.85,marginBottom:12}}>MUSED</div>
-                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:400,color:C.cream,letterSpacing:"0.3em",opacity:0.5,marginBottom:6}}>THE STUDIO</div>
-                <div style={{fontFamily:"'DM Serif Display',serif",fontSize:16,color:C.sand,fontStyle:"italic",marginTop:8}}>Brand Strategy Platform</div>
-              </div>
-              <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.07)",padding:"32px 28px"}}>
-                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.brown,letterSpacing:"0.2em",marginBottom:8}}>ANTHROPIC API KEY REQUIRED</div>
-                <p style={{fontFamily:"Georgia,serif",fontSize:13,lineHeight:1.75,color:C.sand,marginBottom:20}}>
-                  This tool uses the Claude API to generate brand strategy. You need an Anthropic API key to use it.<br/><br/>
-                  Get one at <span style={{color:C.sandLight,textDecoration:"underline"}}>console.anthropic.com</span>. Your key stays in this browser tab only — it is never stored or sent anywhere except directly to Anthropic.
-                </p>
-                <div style={{marginBottom:6,fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.sandDark,letterSpacing:"0.2em"}}>YOUR API KEY</div>
-                <input
-                  type="password"
-                  value={apiKey}
-                  onChange={e => { setApiKey(e.target.value); setErr(""); }}
-                  placeholder="sk-ant-api03-..."
-                  style={{...inp, marginBottom:12, fontFamily:"monospace", fontSize:13}}
-                  onKeyDown={e => e.key === "Enter" && saveKey()}
-                />
-                {err && <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:11,color:"#f5a0a0",marginBottom:12}}>⚠ {err}</div>}
-                <button
-                  onClick={saveKey}
-                  style={{width:"100%",padding:"13px",background:C.brown,color:C.cream,border:"none",fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:11,letterSpacing:"0.2em"}}
-                >
-                  ENTER THE STUDIO →
-                </button>
-              </div>
-            </div>
-          </div>
-        );
-      }
-
-      // ── MAIN APP ──────────────────────────────────────────────────────────
       return (
         <div style={{minHeight:"100vh",background:C.black,color:C.cream}}>
 
@@ -366,7 +311,7 @@
                   <button key={id} onClick={()=>switchMain(id)} style={{padding:"14px 20px",background:mainTab===id?C.brown:"transparent",color:mainTab===id?C.cream:C.muted,border:"none",fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:11,letterSpacing:"0.18em"}}>{lbl.toUpperCase()}</button>
                 ))}
               </nav>
-              <button onClick={()=>setTab("setup")} style={{padding:"14px 16px",background:"transparent",color:C.muted,border:"none",fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,letterSpacing:"0.14em",borderLeft:"1px solid rgba(255,255,255,0.07)"}}>⚙ KEY</button>
+
             </div>
           </header>
 
