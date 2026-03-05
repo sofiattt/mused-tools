@@ -1,408 +1,533 @@
-import { useState } from "react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Mused Studio — Brand Strategy Platform</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0D0D0B; }
+    ::placeholder { color: #555550 !important; opacity: 1 !important; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-thumb { background: #7B5C42; border-radius: 2px; }
+    input:focus, textarea:focus { border-color: #C8C0A8 !important; outline: none !important; }
+    textarea { resize: vertical; }
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
 
-const C = {
-  black:"#0D0D0B", sand:"#C8C0A8", sandLight:"#DDD8CC", sandDark:"#A89E88",
-  brown:"#7B5C42", green:"#2D4A3E", cream:"#F4F0E8", muted:"#555550",
-};
+  <script type="text/babel">
+    const { useState } = React;
 
-const SECTIONS = [
-  {id:"mission",num:"01",label:"Mission & Vision"},
-  {id:"values",num:"02",label:"Brand Values"},
-  {id:"audience",num:"03",label:"Audience Personas"},
-  {id:"problems",num:"04",label:"Problems & Solutions"},
-  {id:"competitors",num:"05",label:"Competitor Analysis"},
-  {id:"voice",num:"06",label:"Brand Voice"},
-  {id:"creative",num:"07",label:"Creative Direction"},
-];
+    const C = {
+      black:"#0D0D0B", sand:"#C8C0A8", sandLight:"#DDD8CC", sandDark:"#A89E88",
+      brown:"#7B5C42", green:"#2D4A3E", cream:"#F4F0E8", muted:"#555550",
+    };
 
-const STUDIO_NAME = "The Mused Studio";
-const STUDIO_CTX = "A creative brand agency founded in Nigeria, working with fashion, tech, wellness, and lifestyle brands across Nigeria, Africa, and globally. Services: brand strategy, creative direction, motion content, and brand management. We work with founders and growing businesses anywhere in the world who know they have something special but cannot yet articulate or show it.";
+    const SECTIONS = [
+      {id:"mission",num:"01",label:"Mission & Vision"},
+      {id:"values",num:"02",label:"Brand Values"},
+      {id:"audience",num:"03",label:"Audience Personas"},
+      {id:"problems",num:"04",label:"Problems & Solutions"},
+      {id:"competitors",num:"05",label:"Competitor Analysis"},
+      {id:"voice",num:"06",label:"Brand Voice"},
+      {id:"creative",num:"07",label:"Creative Direction"},
+    ];
 
-const SHAPES = {
-  mission:`{"mission_short":"","mission_long":"","vision_short":"","vision_long":""}`,
-  values:`{"values":[{"name":"","description":""},{"name":"","description":""},{"name":"","description":""},{"name":"","description":""},{"name":"","description":""},{"name":"","description":""}]}`,
-  audience:`{"personas":[{"name":"","age":"","occupation":"","personality":"","pain_points":"","goals":"","quote":""},{"name":"","age":"","occupation":"","personality":"","pain_points":"","goals":"","quote":""}]}`,
-  problems:`{"items":[{"problem":"","solution":""},{"problem":"","solution":""},{"problem":"","solution":""}]}`,
-  competitors:`{"competitors":[{"name":"","strength":"","weakness":"","opportunity":""},{"name":"","strength":"","weakness":"","opportunity":""},{"name":"","strength":"","weakness":"","opportunity":""}]}`,
-  voice:`{"traits":[{"name":"","description":"","do":"","dont":""},{"name":"","description":"","do":"","dont":""},{"name":"","description":"","do":"","dont":""}]}`,
-  creative:`{"overview":"","typography":"","colors":"","imagery":"","keywords":["","","","",""]}`,
-};
+    const STUDIO_NAME = "The Mused Studio";
+    const STUDIO_CTX = "A creative brand agency founded in Nigeria, working with fashion, tech, wellness, and lifestyle brands across Nigeria, Africa, and globally. Services: brand strategy, creative direction, motion content, and brand management. We work with founders and growing businesses anywhere in the world who know they have something special but cannot yet articulate or show it.";
 
-const PROMPTS = {
-  mission: (name, ctx) => `You are a senior brand strategist. Brand: "${name}". Context: ${ctx}\n\nWrite a mission and vision for this brand. Be specific to what they actually do — do not be generic.\n\nReturn ONLY this JSON:\n${SHAPES.mission}`,
-  values: (name, ctx) => `You are a senior brand strategist. Brand: "${name}". Context: ${ctx}\n\nWrite 6 core brand values that are specific and meaningful for this exact brand. Avoid generic values like "integrity" or "excellence" — make them distinctive.\n\nReturn ONLY this JSON:\n${SHAPES.values}`,
-  audience: (name, ctx) => `You are a senior brand strategist. Brand: "${name}". Context: ${ctx}\n\nDescribe 2 realistic audience personas who would hire or buy from this specific brand. Be specific about their actual job titles, real frustrations, and realistic goals.\n\nReturn ONLY this JSON:\n${SHAPES.audience}`,
-  problems: (name, ctx) => `You are a senior brand strategist. Brand: "${name}". Context: ${ctx}\n\nIdentify 3 real problems this brand's target clients face, and how this brand specifically solves each one.\n\nReturn ONLY this JSON:\n${SHAPES.problems}`,
-  competitors: (name, ctx) => `You are a senior brand strategist. Brand: "${name}". Context: ${ctx}\n\nIdentify 3 DIRECT competitors — brands or agencies that offer the EXACT SAME type of services or products in the same category and target the same type of client. Do NOT list brands from unrelated industries. For example, if the brand is a creative agency, only list other creative agencies — not spas, restaurants, or unrelated businesses.\n\nReturn ONLY this JSON:\n${SHAPES.competitors}`,
-  voice: (name, ctx) => `You are a senior brand strategist. Brand: "${name}". Context: ${ctx}\n\nDefine 3 brand voice traits that are specific to this brand's personality. Each "do" and "dont" should be a realistic example sentence, not a description.\n\nReturn ONLY this JSON:\n${SHAPES.voice}`,
-  creative: (name, ctx) => `You are a senior brand strategist. Brand: "${name}". Context: ${ctx}\n\nDefine the creative direction for this brand. Be specific and visual — describe real font styles, real color moods, real image aesthetics.\n\nReturn ONLY this JSON:\n${SHAPES.creative}`,
-};
+    const SHAPES = {
+      mission:`{"mission_short":"","mission_long":"","vision_short":"","vision_long":""}`,
+      values:`{"values":[{"name":"","description":""},{"name":"","description":""},{"name":"","description":""},{"name":"","description":""},{"name":"","description":""},{"name":"","description":""}]}`,
+      audience:`{"personas":[{"name":"","age":"","occupation":"","personality":"","pain_points":"","goals":"","quote":""},{"name":"","age":"","occupation":"","personality":"","pain_points":"","goals":"","quote":""}]}`,
+      problems:`{"items":[{"problem":"","solution":""},{"problem":"","solution":""},{"problem":"","solution":""}]}`,
+      competitors:`{"competitors":[{"name":"","strength":"","weakness":"","opportunity":""},{"name":"","strength":"","weakness":"","opportunity":""},{"name":"","strength":"","weakness":"","opportunity":""}]}`,
+      voice:`{"traits":[{"name":"","description":"","do":"","dont":""},{"name":"","description":"","do":"","dont":""},{"name":"","description":"","do":"","dont":""}]}`,
+      creative:`{"overview":"","typography":"","colors":"","imagery":"","keywords":["","","","",""]}`,
+    };
 
-async function callAPI(sectionId, name, ctx) {
-  const prompt = PROMPTS[sectionId](name, ctx);
+    const PROMPTS = {
+      mission: (name, ctx) => `You are a senior brand strategist. Brand: "${name}". Context: ${ctx}\n\nWrite a mission and vision for this brand. Be specific to what they actually do — do not be generic.\n\nReturn ONLY this JSON:\n${SHAPES.mission}`,
+      values: (name, ctx) => `You are a senior brand strategist. Brand: "${name}". Context: ${ctx}\n\nWrite 6 core brand values that are specific and meaningful for this exact brand. Avoid generic values like "integrity" or "excellence" — make them distinctive.\n\nReturn ONLY this JSON:\n${SHAPES.values}`,
+      audience: (name, ctx) => `You are a senior brand strategist. Brand: "${name}". Context: ${ctx}\n\nDescribe 2 realistic audience personas who would hire or buy from this specific brand. Be specific about their actual job titles, real frustrations, and realistic goals.\n\nReturn ONLY this JSON:\n${SHAPES.audience}`,
+      problems: (name, ctx) => `You are a senior brand strategist. Brand: "${name}". Context: ${ctx}\n\nIdentify 3 real problems this brand's target clients face, and how this brand specifically solves each one.\n\nReturn ONLY this JSON:\n${SHAPES.problems}`,
+      competitors: (name, ctx) => `You are a senior brand strategist. Brand: "${name}". Context: ${ctx}\n\nIdentify 3 DIRECT competitors — brands or agencies that offer the EXACT SAME type of services or products in the same category and target the same type of client. Do NOT list brands from unrelated industries.\n\nReturn ONLY this JSON:\n${SHAPES.competitors}`,
+      voice: (name, ctx) => `You are a senior brand strategist. Brand: "${name}". Context: ${ctx}\n\nDefine 3 brand voice traits specific to this brand's personality. Each "do" and "dont" should be a realistic example sentence.\n\nReturn ONLY this JSON:\n${SHAPES.voice}`,
+      creative: (name, ctx) => `You are a senior brand strategist. Brand: "${name}". Context: ${ctx}\n\nDefine the creative direction for this brand. Be specific and visual — describe real font styles, real color moods, real image aesthetics.\n\nReturn ONLY this JSON:\n${SHAPES.creative}`,
+    };
 
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 1000,
-      messages: [{ role: "user", content: prompt }],
-    }),
-  });
+    async function callAPI(sectionId, name, ctx, apiKey) {
+      const prompt = PROMPTS[sectionId](name, ctx);
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true",
+        },
+        body: JSON.stringify({
+          model: "claude-opus-4-5",
+          max_tokens: 1000,
+          messages: [{ role: "user", content: prompt }],
+        }),
+      });
 
-  const data = await response.json();
+      const data = await response.json();
+      if (!response.ok || data.error) {
+        throw new Error(data.error?.message || `HTTP ${response.status}`);
+      }
 
-  if (!response.ok || data.error) {
-    throw new Error(data.error?.message || `HTTP ${response.status}: ${JSON.stringify(data).slice(0,150)}`);
-  }
+      const raw = (data.content || []).map(b => b.type === "text" ? b.text : "").filter(Boolean).join("\n").trim();
+      if (!raw) throw new Error("Empty response — try again.");
 
-  const raw = (data.content || [])
-    .map(item => item.type === "text" ? item.text : "")
-    .filter(Boolean)
-    .join("\n")
-    .trim();
-
-  if (!raw) throw new Error("Empty response from API");
-
-  try { return JSON.parse(raw); } catch (_) {}
-  const s = raw.replace(/^```(?:json)?\s*/i,"").replace(/\s*```\s*$/i,"").trim();
-  try { return JSON.parse(s); } catch (_) {}
-  const m = raw.match(/\{[\s\S]*\}/);
-  if (m) { try { return JSON.parse(m[0]); } catch (_) {} }
-  throw new Error("JSON parse failed. Response was: " + raw.slice(0, 120));
-}
-
-const Tag = ({children,bg=C.brown,fg=C.cream}) => <span style={{display:"inline-block",background:bg,color:fg,padding:"3px 10px",fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:9,letterSpacing:"0.2em"}}>{children}</span>;
-const FL = ({children}) => <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.sand,letterSpacing:"0.2em",marginBottom:8,opacity:0.5}}>{children}</div>;
-
-const MissionOut = ({d}) => (
-  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:3}}>
-    {[{tag:"MISSION",short:d.mission_short,long:d.mission_long,bg:C.black,tb:C.brown},{tag:"VISION",short:d.vision_short,long:d.vision_long,bg:C.green,tb:C.sand}].map(({tag,short,long,bg,tb})=>(
-      <div key={tag} style={{background:bg,padding:"34px 30px"}}>
-        <Tag bg={tb} fg={C.black}>{tag}</Tag>
-        <p style={{fontFamily:"'DM Serif Display',serif",fontSize:20,lineHeight:1.55,color:C.cream,margin:"16px 0",fontStyle:"italic"}}>"{short}"</p>
-        <div style={{width:32,height:1,background:tb,marginBottom:16}}/>
-        <p style={{fontFamily:"Georgia,serif",fontSize:13.5,lineHeight:1.85,color:C.sand,margin:0}}>{long}</p>
-      </div>
-    ))}
-  </div>
-);
-
-const ValuesOut = ({d}) => {
-  const bgs=[C.black,C.green,C.brown,C.black,C.green,C.brown];
-  return <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:3}}>{(d.values||[]).map((v,i)=><div key={i} style={{background:bgs[i%6],padding:"24px 20px"}}><div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:11,color:C.sand,opacity:0.4,marginBottom:10}}>0{i+1}</div><div style={{fontFamily:"'DM Serif Display',serif",fontSize:17,color:C.cream,marginBottom:10}}>{v.name}</div><p style={{fontFamily:"Georgia,serif",fontSize:12.5,lineHeight:1.75,color:C.sand,margin:0}}>{v.description}</p></div>)}</div>;
-};
-
-const PersonasOut = ({d}) => (
-  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:3}}>
-    {(d.personas||[]).map((p,i)=>(
-      <div key={i} style={{background:i===0?C.black:C.green,padding:28}}>
-        <Tag>PERSONA 0{i+1}</Tag>
-        <h3 style={{fontFamily:"'DM Serif Display',serif",fontSize:24,color:C.cream,margin:"14px 0 4px",fontWeight:400}}>{p.name}</h3>
-        <p style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:12,color:C.sandDark,margin:"0 0 20px"}}>{p.age} · {p.occupation}</p>
-        {[["PERSONALITY",p.personality],["PAIN POINTS",p.pain_points],["GOALS",p.goals]].map(([k,v])=>(
-          <div key={k} style={{marginBottom:14}}><FL>{k}</FL><p style={{fontFamily:"Georgia,serif",fontSize:13,lineHeight:1.65,color:C.sandLight,margin:0}}>{v}</p></div>
-        ))}
-        <div style={{marginTop:16,borderTop:"1px solid rgba(255,255,255,0.1)",paddingTop:14,fontFamily:"'DM Serif Display',serif",fontSize:14,fontStyle:"italic",color:C.sand}}>"{p.quote}"</div>
-      </div>
-    ))}
-  </div>
-);
-
-const ProblemsOut = ({d}) => (
-  <div style={{display:"flex",flexDirection:"column",gap:3}}>
-    {(d.items||[]).map((item,i)=>(
-      <div key={i} style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:3}}>
-        <div style={{background:C.black,padding:"24px 28px"}}><Tag bg="#3d1a1a" fg="#f5aaaa">PROBLEM</Tag><p style={{fontFamily:"Georgia,serif",fontSize:14,lineHeight:1.75,color:C.cream,margin:"12px 0 0"}}>{item.problem}</p></div>
-        <div style={{background:C.green,padding:"24px 28px"}}><Tag bg={C.sand} fg={C.black}>SOLUTION</Tag><p style={{fontFamily:"Georgia,serif",fontSize:14,lineHeight:1.75,color:C.cream,margin:"12px 0 0"}}>{item.solution}</p></div>
-      </div>
-    ))}
-  </div>
-);
-
-const CompetitorsOut = ({d}) => (
-  <div style={{background:C.black,overflow:"hidden",border:"1px solid rgba(255,255,255,0.06)"}}>
-    <div style={{display:"grid",gridTemplateColumns:"1.4fr 1fr 1fr 1.4fr",background:C.brown}}>
-      {["COMPETITOR","STRENGTH","WEAKNESS","OUR OPPORTUNITY"].map(h=><div key={h} style={{padding:"12px 18px",fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:10,letterSpacing:"0.18em",color:C.black}}>{h}</div>)}
-    </div>
-    {(d.competitors||[]).map((c,i)=>(
-      <div key={i} style={{display:"grid",gridTemplateColumns:"1.4fr 1fr 1fr 1.4fr",borderTop:"1px solid rgba(255,255,255,0.07)",background:i%2?"rgba(255,255,255,0.025)":"transparent"}}>
-        <div style={{padding:18,fontFamily:"'DM Serif Display',serif",fontSize:15,color:C.cream}}>{c.name}</div>
-        <div style={{padding:18,fontFamily:"Georgia,serif",fontSize:12.5,color:C.sand,lineHeight:1.65}}>{c.strength}</div>
-        <div style={{padding:18,fontFamily:"Georgia,serif",fontSize:12.5,color:C.sand,lineHeight:1.65}}>{c.weakness}</div>
-        <div style={{padding:18,fontFamily:"Georgia,serif",fontSize:12.5,color:C.sandLight,fontStyle:"italic",lineHeight:1.65}}>{c.opportunity}</div>
-      </div>
-    ))}
-  </div>
-);
-
-const VoiceOut = ({d}) => (
-  <div style={{display:"flex",flexDirection:"column",gap:3}}>
-    {(d.traits||[]).map((t,i)=>(
-      <div key={i} style={{background:[C.black,C.green,C.brown][i%3],overflow:"hidden"}}>
-        <div style={{padding:"20px 26px",borderBottom:"1px solid rgba(255,255,255,0.08)",display:"flex",alignItems:"baseline",gap:12,flexWrap:"wrap"}}>
-          <span style={{fontFamily:"'DM Serif Display',serif",fontSize:20,color:C.cream}}>{t.name}</span>
-          <span style={{fontFamily:"Georgia,serif",fontSize:13,fontStyle:"italic",color:C.sand}}>— {t.description}</span>
-        </div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr"}}>
-          <div style={{padding:"18px 26px",borderRight:"1px solid rgba(255,255,255,0.07)"}}>
-            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:"#7dbe7d",letterSpacing:"0.2em",marginBottom:8}}>✓ DO</div>
-            <p style={{fontFamily:"Georgia,serif",fontSize:13.5,lineHeight:1.75,color:C.sandLight,margin:0}}>{t.do}</p>
-          </div>
-          <div style={{padding:"18px 26px"}}>
-            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:"#c07070",letterSpacing:"0.2em",marginBottom:8}}>✕ DON'T</div>
-            <p style={{fontFamily:"Georgia,serif",fontSize:13.5,lineHeight:1.75,color:C.sandLight,margin:0}}>{t.dont}</p>
-          </div>
-        </div>
-      </div>
-    ))}
-  </div>
-);
-
-const CreativeOut = ({d}) => (
-  <div style={{display:"flex",flexDirection:"column",gap:3}}>
-    <div style={{background:C.brown,padding:"32px 28px"}}><FL>CREATIVE OVERVIEW</FL><p style={{fontFamily:"'DM Serif Display',serif",fontSize:22,fontStyle:"italic",lineHeight:1.55,color:C.cream,margin:0}}>{d.overview}</p></div>
-    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:3}}>
-      {[["TYPOGRAPHY",d.typography,C.black],["COLOUR PALETTE",d.colors,C.green],["IMAGERY STYLE",d.imagery,C.black]].map(([l,v,bg])=>(
-        <div key={l} style={{background:bg,padding:"24px 20px"}}><FL>{l}</FL><p style={{fontFamily:"Georgia,serif",fontSize:13.5,lineHeight:1.75,color:C.sandLight,margin:0}}>{v}</p></div>
-      ))}
-      <div style={{background:C.black,padding:"24px 20px"}}><FL>MOOD KEYWORDS</FL><div style={{display:"flex",flexWrap:"wrap",gap:8,marginTop:4}}>{(d.keywords||[]).map(k=><span key={k} style={{background:C.brown,color:C.cream,padding:"5px 14px",fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:12,letterSpacing:"0.1em"}}>{k.toUpperCase()}</span>)}</div></div>
-    </div>
-  </div>
-);
-
-function renderSection(id,data){
-  if(!data)return null;
-  const map={mission:MissionOut,values:ValuesOut,audience:PersonasOut,problems:ProblemsOut,competitors:CompetitorsOut,voice:VoiceOut,creative:CreativeOut};
-  const Comp=map[id];return Comp?<Comp d={data}/>:null;
-}
-
-const CASES=[
-  {name:"Sundae Kind of Love",type:"Romance Bookshop",color:"#E05C9A",lesson:"Turned genre stigma into brand fuel by making readers feel proud.",mission:"To melt the stigma around romance and make book buying feel like a sweet treat.",vision:"A community of romance lovers who feel proud of what they read.",values:["Romanticise the Mundane","Community First","All Flavours Welcome","Joy for Joy's Sake","No Shame in the Spice","Served with Kindness"],voice:["Sweet & Cheeky","Warm & Human","Humorous"],insight:"Their brand gives emotional permission. What permission does your brand give?"},
-  {name:"Pure Petals Skin Care",type:"Organic Skincare",color:"#8B2252",lesson:"Every touchpoint reinforces the same calm earthy world without exception.",mission:"Gentle care for naturally beautiful skin — earth-grown, 100% raw and organic.",vision:"Products that integrate seamlessly into daily life. Nothing excessive.",values:["Purity First","Earth-Grown","Ethically Sourced","Calm & Approachable","Science + Care","Minimalism"],voice:["Soft & Reassuring","Educational","Clean Elegance"],insight:"They built recognition through restraint. Coherence is a luxury brand's real advantage."},
-];
-
-export default function App() {
-  const [tab,setTab]=useState("studio");
-  const [section,setSection]=useState("mission");
-  const [clientName,setCN]=useState("");
-  const [clientCtx,setCC]=useState("");
-  const [generated,setGenerated]=useState({});
-  const [spinning,setSpinning]=useState(null);
-  const [allBusy,setAllBusy]=useState(false);
-  const [err,setErr]=useState("");
-  const [caseOpen,setCaseOpen]=useState(null);
-
-  const isStudio=tab==="studio";
-  const activeName=isStudio?STUDIO_NAME:clientName;
-  const activeCtx=isStudio?STUDIO_CTX:clientCtx;
-  const busy=!!spinning||allBusy;
-  const activeSec=SECTIONS.find(s=>s.id===section);
-  const progress=Object.keys(generated).length;
-
-  const switchTab=(t)=>{setTab(t);setGenerated({});setErr("");setCN("");setCC("");setSection("mission");};
-
-  const genOne=async(sid)=>{
-    if(!activeName.trim()||!activeCtx.trim()){setErr(!isStudio?"Fill in client name and brief.":"Context missing.");return;}
-    setErr("");setSpinning(sid);
-    try{const r=await callAPI(sid,activeName.trim(),activeCtx.trim());setGenerated(p=>({...p,[sid]:r}));}
-    catch(e){setErr(e.message);}
-    setSpinning(null);
-  };
-
-  const genAll=async()=>{
-    if(!activeName.trim()||!activeCtx.trim()){setErr(!isStudio?"Fill in client name and brief.":"Context missing.");return;}
-    setErr("");setAllBusy(true);
-    for(const s of SECTIONS){
-      setSpinning(s.id);
-      try{const r=await callAPI(s.id,activeName.trim(),activeCtx.trim());setGenerated(p=>({...p,[s.id]:r}));}
-      catch(e){setErr(`Stopped at "${s.label}": ${e.message}`);break;}
+      try { return JSON.parse(raw); } catch (_) {}
+      const s = raw.replace(/^```(?:json)?\s*/i,"").replace(/\s*```\s*$/i,"").trim();
+      try { return JSON.parse(s); } catch (_) {}
+      const m = raw.match(/\{[\s\S]*\}/);
+      if (m) { try { return JSON.parse(m[0]); } catch (_) {} }
+      throw new Error("Could not parse response — try again.");
     }
-    setSpinning(null);setAllBusy(false);
-  };
 
-  const inp={width:"100%",padding:"11px 14px",background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.12)",color:C.cream,fontFamily:"Georgia,serif",fontSize:14,lineHeight:1.6};
+    const Tag = ({children, bg=C.brown, fg=C.cream}) => (
+      <span style={{display:"inline-block",background:bg,color:fg,padding:"3px 10px",fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:9,letterSpacing:"0.2em"}}>{children}</span>
+    );
+    const FL = ({children}) => (
+      <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.sand,letterSpacing:"0.2em",marginBottom:8,opacity:0.5}}>{children}</div>
+    );
 
-  return(
-    <div style={{minHeight:"100vh",background:C.black,color:C.cream}}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=DM+Serif+Display:ital@0;1&display=swap');
-        *{box-sizing:border-box;margin:0;padding:0;}
-        ::placeholder{color:#555550!important;opacity:1!important;}
-        ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:#7B5C42;border-radius:2px;}
-        input:focus,textarea:focus{border-color:#C8C0A8!important;outline:none!important;}
-        textarea{resize:vertical;}button{cursor:pointer;}button:disabled{cursor:not-allowed;}
-        @keyframes spin{to{transform:rotate(360deg)}}
-      `}</style>
-
-      <header style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 36px",borderBottom:"1px solid rgba(255,255,255,0.07)",background:C.black,position:"sticky",top:0,zIndex:20}}>
-        <div style={{display:"flex",alignItems:"center",gap:20,padding:"14px 0"}}>
-          <div style={{display:"inline-flex",flexDirection:"column",alignItems:"center"}}>
-            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:900,fontSize:26,color:C.cream,letterSpacing:"-0.02em",writingMode:"vertical-rl",transform:"rotate(180deg)",lineHeight:0.85}}>MUSED</div>
-            <div style={{display:"flex",gap:8,marginTop:3,fontFamily:"'Barlow Condensed',sans-serif",fontWeight:400,fontSize:5,color:C.cream,letterSpacing:"0.2em",opacity:0.6}}><span>THE</span><span>STUDIO</span></div>
+    const MissionOut = ({d}) => (
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:3}}>
+        {[{tag:"MISSION",short:d.mission_short,long:d.mission_long,bg:C.black,tb:C.brown},{tag:"VISION",short:d.vision_short,long:d.vision_long,bg:C.green,tb:C.sand}].map(({tag,short,long,bg,tb})=>(
+          <div key={tag} style={{background:bg,padding:"34px 30px"}}>
+            <Tag bg={tb} fg={C.black}>{tag}</Tag>
+            <p style={{fontFamily:"'DM Serif Display',serif",fontSize:20,lineHeight:1.55,color:C.cream,margin:"16px 0",fontStyle:"italic"}}>"{short}"</p>
+            <div style={{width:32,height:1,background:tb,marginBottom:16}}/>
+            <p style={{fontFamily:"Georgia,serif",fontSize:13.5,lineHeight:1.85,color:C.sand,margin:0}}>{long}</p>
           </div>
-          <div style={{width:1,height:30,background:"rgba(255,255,255,0.1)"}}/>
-          <div>
-            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,letterSpacing:"0.24em",color:C.brown}}>BRAND STRATEGY PLATFORM</div>
-            <div style={{fontFamily:"'DM Serif Display',serif",fontSize:14,color:C.sand,fontStyle:"italic"}}>Turn positioning into presence.</div>
-          </div>
-        </div>
-        <nav style={{display:"flex"}}>
-          {[["studio","My Studio"],["client","Client Builder"],["casestudy","Case Studies"]].map(([id,lbl])=>(
-            <button key={id} onClick={()=>switchTab(id)} style={{padding:"14px 20px",background:tab===id?C.brown:"transparent",color:tab===id?C.cream:C.muted,border:"none",fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:11,letterSpacing:"0.18em"}}>{lbl.toUpperCase()}</button>
+        ))}
+      </div>
+    );
+
+    const ValuesOut = ({d}) => {
+      const bgs=[C.black,C.green,C.brown,C.black,C.green,C.brown];
+      return (
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:3}}>
+          {(d.values||[]).map((v,i)=>(
+            <div key={i} style={{background:bgs[i%6],padding:"24px 20px"}}>
+              <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:11,color:C.sand,opacity:0.4,marginBottom:10}}>0{i+1}</div>
+              <div style={{fontFamily:"'DM Serif Display',serif",fontSize:17,color:C.cream,marginBottom:10}}>{v.name}</div>
+              <p style={{fontFamily:"Georgia,serif",fontSize:12.5,lineHeight:1.75,color:C.sand,margin:0}}>{v.description}</p>
+            </div>
           ))}
-        </nav>
-      </header>
+        </div>
+      );
+    };
 
-      {(tab==="studio"||tab==="client")&&(
-        <div style={{display:"flex",height:"calc(100vh - 65px)"}}>
-          <aside style={{width:218,flexShrink:0,borderRight:"1px solid rgba(255,255,255,0.07)",display:"flex",flexDirection:"column",overflowY:"auto"}}>
-            <div style={{padding:"18px 18px 10px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.muted,letterSpacing:"0.2em"}}>SECTIONS</div>
-            {SECTIONS.map(s=>{
-              const active=section===s.id,done=!!generated[s.id],isSpin=spinning===s.id;
-              return(
-                <button key={s.id} onClick={()=>setSection(s.id)} style={{display:"flex",alignItems:"center",gap:10,padding:"12px 18px",background:active?"rgba(244,240,232,0.95)":"transparent",color:active?C.black:done?C.sand:C.muted,border:"none",width:"100%",textAlign:"left",borderLeft:active?`3px solid ${C.brown}`:"3px solid transparent"}}>
-                  <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:11,color:active?C.brown:done?C.sandDark:C.muted,minWidth:22}}>{s.num}</span>
-                  <span style={{fontFamily:"'DM Serif Display',serif",fontSize:13,flex:1}}>{s.label}</span>
-                  {isSpin&&<span style={{display:"inline-block",animation:"spin 1s linear infinite",opacity:0.5}}>◌</span>}
-                  {done&&!isSpin&&!active&&<span style={{color:C.brown,fontSize:11}}>✓</span>}
-                </button>
-              );
-            })}
-            <div style={{padding:"16px 18px 22px",marginTop:"auto"}}>
-              <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.muted,letterSpacing:"0.18em",marginBottom:7}}>{progress}/{SECTIONS.length} COMPLETE</div>
-              <div style={{height:2,background:"rgba(255,255,255,0.07)",borderRadius:1}}>
-                <div style={{height:"100%",width:`${(progress/SECTIONS.length)*100}%`,background:C.brown,transition:"width .5s",borderRadius:1}}/>
+    const PersonasOut = ({d}) => (
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:3}}>
+        {(d.personas||[]).map((p,i)=>(
+          <div key={i} style={{background:i===0?C.black:C.green,padding:28}}>
+            <Tag>PERSONA 0{i+1}</Tag>
+            <h3 style={{fontFamily:"'DM Serif Display',serif",fontSize:24,color:C.cream,margin:"14px 0 4px",fontWeight:400}}>{p.name}</h3>
+            <p style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:12,color:C.sandDark,margin:"0 0 20px"}}>{p.age} · {p.occupation}</p>
+            {[["PERSONALITY",p.personality],["PAIN POINTS",p.pain_points],["GOALS",p.goals]].map(([k,v])=>(
+              <div key={k} style={{marginBottom:14}}>
+                <FL>{k}</FL>
+                <p style={{fontFamily:"Georgia,serif",fontSize:13,lineHeight:1.65,color:C.sandLight,margin:0}}>{v}</p>
+              </div>
+            ))}
+            <div style={{marginTop:16,borderTop:"1px solid rgba(255,255,255,0.1)",paddingTop:14,fontFamily:"'DM Serif Display',serif",fontSize:14,fontStyle:"italic",color:C.sand}}>"{p.quote}"</div>
+          </div>
+        ))}
+      </div>
+    );
+
+    const ProblemsOut = ({d}) => (
+      <div style={{display:"flex",flexDirection:"column",gap:3}}>
+        {(d.items||[]).map((item,i)=>(
+          <div key={i} style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:3}}>
+            <div style={{background:C.black,padding:"24px 28px"}}>
+              <Tag bg="#3d1a1a" fg="#f5aaaa">PROBLEM</Tag>
+              <p style={{fontFamily:"Georgia,serif",fontSize:14,lineHeight:1.75,color:C.cream,margin:"12px 0 0"}}>{item.problem}</p>
+            </div>
+            <div style={{background:C.green,padding:"24px 28px"}}>
+              <Tag bg={C.sand} fg={C.black}>SOLUTION</Tag>
+              <p style={{fontFamily:"Georgia,serif",fontSize:14,lineHeight:1.75,color:C.cream,margin:"12px 0 0"}}>{item.solution}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+
+    const CompetitorsOut = ({d}) => (
+      <div style={{background:C.black,overflow:"hidden",border:"1px solid rgba(255,255,255,0.06)"}}>
+        <div style={{display:"grid",gridTemplateColumns:"1.4fr 1fr 1fr 1.4fr",background:C.brown}}>
+          {["COMPETITOR","STRENGTH","WEAKNESS","OUR OPPORTUNITY"].map(h=>(
+            <div key={h} style={{padding:"12px 18px",fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:10,letterSpacing:"0.18em",color:C.black}}>{h}</div>
+          ))}
+        </div>
+        {(d.competitors||[]).map((c,i)=>(
+          <div key={i} style={{display:"grid",gridTemplateColumns:"1.4fr 1fr 1fr 1.4fr",borderTop:"1px solid rgba(255,255,255,0.07)",background:i%2?"rgba(255,255,255,0.025)":"transparent"}}>
+            <div style={{padding:18,fontFamily:"'DM Serif Display',serif",fontSize:15,color:C.cream}}>{c.name}</div>
+            <div style={{padding:18,fontFamily:"Georgia,serif",fontSize:12.5,color:C.sand,lineHeight:1.65}}>{c.strength}</div>
+            <div style={{padding:18,fontFamily:"Georgia,serif",fontSize:12.5,color:C.sand,lineHeight:1.65}}>{c.weakness}</div>
+            <div style={{padding:18,fontFamily:"Georgia,serif",fontSize:12.5,color:C.sandLight,fontStyle:"italic",lineHeight:1.65}}>{c.opportunity}</div>
+          </div>
+        ))}
+      </div>
+    );
+
+    const VoiceOut = ({d}) => (
+      <div style={{display:"flex",flexDirection:"column",gap:3}}>
+        {(d.traits||[]).map((t,i)=>(
+          <div key={i} style={{background:[C.black,C.green,C.brown][i%3],overflow:"hidden"}}>
+            <div style={{padding:"20px 26px",borderBottom:"1px solid rgba(255,255,255,0.08)",display:"flex",alignItems:"baseline",gap:12,flexWrap:"wrap"}}>
+              <span style={{fontFamily:"'DM Serif Display',serif",fontSize:20,color:C.cream}}>{t.name}</span>
+              <span style={{fontFamily:"Georgia,serif",fontSize:13,fontStyle:"italic",color:C.sand}}>— {t.description}</span>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr"}}>
+              <div style={{padding:"18px 26px",borderRight:"1px solid rgba(255,255,255,0.07)"}}>
+                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:"#7dbe7d",letterSpacing:"0.2em",marginBottom:8}}>✓ DO</div>
+                <p style={{fontFamily:"Georgia,serif",fontSize:13.5,lineHeight:1.75,color:C.sandLight,margin:0}}>{t.do}</p>
+              </div>
+              <div style={{padding:"18px 26px"}}>
+                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:"#c07070",letterSpacing:"0.2em",marginBottom:8}}>✕ DON'T</div>
+                <p style={{fontFamily:"Georgia,serif",fontSize:13.5,lineHeight:1.75,color:C.sandLight,margin:0}}>{t.dont}</p>
               </div>
             </div>
-          </aside>
+          </div>
+        ))}
+      </div>
+    );
 
-          <main style={{flex:1,overflow:"auto",display:"flex",flexDirection:"column"}}>
-            <div style={{padding:"20px 28px",borderBottom:"1px solid rgba(255,255,255,0.07)",background:"rgba(255,255,255,0.015)",flexShrink:0}}>
-              {isStudio&&(
-                <div style={{marginBottom:16,padding:"14px 18px",background:"rgba(123,92,66,0.12)",borderLeft:`2px solid ${C.brown}`}}>
-                  <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.brown,letterSpacing:"0.2em",marginBottom:5}}>GENERATING FOR</div>
-                  <div style={{fontFamily:"'DM Serif Display',serif",fontSize:17,color:C.cream,marginBottom:5}}>The Mused Studio</div>
-                  <p style={{fontFamily:"Georgia,serif",fontSize:12.5,color:C.sand,lineHeight:1.65,margin:0}}>{STUDIO_CTX}</p>
-                </div>
-              )}
-              {!isStudio&&(
-                <div style={{marginBottom:16}}>
-                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:14}}>
-                    <div>
-                      <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.sandDark,letterSpacing:"0.2em",marginBottom:7}}>CLIENT NAME</div>
-                      <input value={clientName} onChange={e=>setCN(e.target.value)} placeholder="e.g. Bloom Atelier" style={{...inp,fontFamily:"'DM Serif Display',serif",fontSize:16}}/>
-                    </div>
-                    <div>
-                      <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.sandDark,letterSpacing:"0.2em",marginBottom:7}}>INDUSTRY</div>
-                      <input placeholder="e.g. Wellness, Fashion, Tech…" style={inp}/>
-                    </div>
+    const CreativeOut = ({d}) => (
+      <div style={{display:"flex",flexDirection:"column",gap:3}}>
+        <div style={{background:C.brown,padding:"32px 28px"}}>
+          <FL>CREATIVE OVERVIEW</FL>
+          <p style={{fontFamily:"'DM Serif Display',serif",fontSize:22,fontStyle:"italic",lineHeight:1.55,color:C.cream,margin:0}}>{d.overview}</p>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:3}}>
+          {[["TYPOGRAPHY",d.typography,C.black],["COLOUR PALETTE",d.colors,C.green],["IMAGERY STYLE",d.imagery,C.black]].map(([l,v,bg])=>(
+            <div key={l} style={{background:bg,padding:"24px 20px"}}>
+              <FL>{l}</FL>
+              <p style={{fontFamily:"Georgia,serif",fontSize:13.5,lineHeight:1.75,color:C.sandLight,margin:0}}>{v}</p>
+            </div>
+          ))}
+          <div style={{background:C.black,padding:"24px 20px"}}>
+            <FL>MOOD KEYWORDS</FL>
+            <div style={{display:"flex",flexWrap:"wrap",gap:8,marginTop:4}}>
+              {(d.keywords||[]).map(k=>(
+                <span key={k} style={{background:C.brown,color:C.cream,padding:"5px 14px",fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:12,letterSpacing:"0.1em"}}>{k.toUpperCase()}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+
+    function renderSection(id, data) {
+      if (!data) return null;
+      const map = {mission:MissionOut,values:ValuesOut,audience:PersonasOut,problems:ProblemsOut,competitors:CompetitorsOut,voice:VoiceOut,creative:CreativeOut};
+      const Comp = map[id];
+      return Comp ? <Comp d={data} /> : null;
+    }
+
+    const CASES = [
+      {name:"Sundae Kind of Love",type:"Romance Bookshop",color:"#E05C9A",lesson:"Turned genre stigma into brand fuel by making readers feel proud.",mission:"To melt the stigma around romance and make book buying feel like a sweet treat.",vision:"A community of romance lovers who feel proud of what they read.",values:["Romanticise the Mundane","Community First","All Flavours Welcome","Joy for Joy's Sake","No Shame in the Spice","Served with Kindness"],voice:["Sweet & Cheeky","Warm & Human","Humorous"],insight:"Their brand gives emotional permission. What permission does your brand give?"},
+      {name:"Pure Petals Skin Care",type:"Organic Skincare",color:"#8B2252",lesson:"Every touchpoint reinforces the same calm earthy world without exception.",mission:"Gentle care for naturally beautiful skin — earth-grown, 100% raw and organic.",vision:"Products that integrate seamlessly into daily life. Nothing excessive.",values:["Purity First","Earth-Grown","Ethically Sourced","Calm & Approachable","Science + Care","Minimalism"],voice:["Soft & Reassuring","Educational","Clean Elegance"],insight:"They built recognition through restraint. Coherence is a luxury brand's real advantage."},
+    ];
+
+    function App() {
+      const [tab, setTab] = useState("setup");
+      const [apiKey, setApiKey] = useState("");
+      const [apiKeySaved, setApiKeySaved] = useState(false);
+      const [section, setSection] = useState("mission");
+      const [clientName, setCN] = useState("");
+      const [clientCtx, setCC] = useState("");
+      const [generated, setGenerated] = useState({});
+      const [spinning, setSpinning] = useState(null);
+      const [allBusy, setAllBusy] = useState(false);
+      const [err, setErr] = useState("");
+      const [caseOpen, setCaseOpen] = useState(null);
+      const [mainTab, setMainTab] = useState("studio");
+
+      const isStudio = mainTab === "studio";
+      const activeName = isStudio ? STUDIO_NAME : clientName;
+      const activeCtx = isStudio ? STUDIO_CTX : clientCtx;
+      const busy = !!spinning || allBusy;
+      const activeSec = SECTIONS.find(s => s.id === section);
+      const progress = Object.keys(generated).length;
+
+      const saveKey = () => {
+        if (apiKey.trim().startsWith("sk-ant-")) {
+          setApiKeySaved(true);
+          setTab("studio");
+        } else {
+          setErr("Key must start with sk-ant-");
+        }
+      };
+
+      const switchMain = (t) => { setMainTab(t); setGenerated({}); setErr(""); setCN(""); setCC(""); setSection("mission"); };
+
+      const genOne = async (sid) => {
+        if (!activeName.trim() || !activeCtx.trim()) { setErr("Fill in client name and brief."); return; }
+        setErr(""); setSpinning(sid);
+        try {
+          const r = await callAPI(sid, activeName.trim(), activeCtx.trim(), apiKey.trim());
+          setGenerated(p => ({...p, [sid]: r}));
+        } catch(e) { setErr(e.message); }
+        setSpinning(null);
+      };
+
+      const genAll = async () => {
+        if (!activeName.trim() || !activeCtx.trim()) { setErr("Fill in client name and brief."); return; }
+        setErr(""); setAllBusy(true);
+        for (const s of SECTIONS) {
+          setSpinning(s.id);
+          try {
+            const r = await callAPI(s.id, activeName.trim(), activeCtx.trim(), apiKey.trim());
+            setGenerated(p => ({...p, [s.id]: r}));
+          } catch(e) { setErr(`Stopped at "${s.label}": ${e.message}`); break; }
+        }
+        setSpinning(null); setAllBusy(false);
+      };
+
+      const inp = {width:"100%",padding:"11px 14px",background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.12)",color:C.cream,fontFamily:"Georgia,serif",fontSize:14,lineHeight:1.6,borderRadius:0};
+
+      // ── API KEY SETUP SCREEN ──────────────────────────────────────────────
+      if (tab === "setup") {
+        return (
+          <div style={{minHeight:"100vh",background:C.black,display:"flex",alignItems:"center",justifyContent:"center",padding:24}}>
+            <div style={{width:"100%",maxWidth:480}}>
+              <div style={{display:"flex",flexDirection:"column",alignItems:"center",marginBottom:40}}>
+                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:900,fontSize:64,color:C.cream,letterSpacing:"-0.02em",lineHeight:0.85,marginBottom:12}}>MUSED</div>
+                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:400,color:C.cream,letterSpacing:"0.3em",opacity:0.5,marginBottom:6}}>THE STUDIO</div>
+                <div style={{fontFamily:"'DM Serif Display',serif",fontSize:16,color:C.sand,fontStyle:"italic",marginTop:8}}>Brand Strategy Platform</div>
+              </div>
+              <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.07)",padding:"32px 28px"}}>
+                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.brown,letterSpacing:"0.2em",marginBottom:8}}>ANTHROPIC API KEY REQUIRED</div>
+                <p style={{fontFamily:"Georgia,serif",fontSize:13,lineHeight:1.75,color:C.sand,marginBottom:20}}>
+                  This tool uses the Claude API to generate brand strategy. You need an Anthropic API key to use it.<br/><br/>
+                  Get one at <span style={{color:C.sandLight,textDecoration:"underline"}}>console.anthropic.com</span>. Your key stays in this browser tab only — it is never stored or sent anywhere except directly to Anthropic.
+                </p>
+                <div style={{marginBottom:6,fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.sandDark,letterSpacing:"0.2em"}}>YOUR API KEY</div>
+                <input
+                  type="password"
+                  value={apiKey}
+                  onChange={e => { setApiKey(e.target.value); setErr(""); }}
+                  placeholder="sk-ant-api03-..."
+                  style={{...inp, marginBottom:12, fontFamily:"monospace", fontSize:13}}
+                  onKeyDown={e => e.key === "Enter" && saveKey()}
+                />
+                {err && <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:11,color:"#f5a0a0",marginBottom:12}}>⚠ {err}</div>}
+                <button
+                  onClick={saveKey}
+                  style={{width:"100%",padding:"13px",background:C.brown,color:C.cream,border:"none",fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:11,letterSpacing:"0.2em"}}
+                >
+                  ENTER THE STUDIO →
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // ── MAIN APP ──────────────────────────────────────────────────────────
+      return (
+        <div style={{minHeight:"100vh",background:C.black,color:C.cream}}>
+
+          <header style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 36px",borderBottom:"1px solid rgba(255,255,255,0.07)",background:C.black,position:"sticky",top:0,zIndex:20}}>
+            <div style={{display:"flex",alignItems:"center",gap:20,padding:"14px 0"}}>
+              <div style={{display:"inline-flex",flexDirection:"column",alignItems:"center"}}>
+                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:900,fontSize:26,color:C.cream,letterSpacing:"-0.02em",writingMode:"vertical-rl",transform:"rotate(180deg)",lineHeight:0.85}}>MUSED</div>
+                <div style={{display:"flex",gap:8,marginTop:3,fontFamily:"'Barlow Condensed',sans-serif",fontWeight:400,fontSize:5,color:C.cream,letterSpacing:"0.2em",opacity:0.6}}><span>THE</span><span>STUDIO</span></div>
+              </div>
+              <div style={{width:1,height:30,background:"rgba(255,255,255,0.1)"}}/>
+              <div>
+                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,letterSpacing:"0.24em",color:C.brown}}>BRAND STRATEGY PLATFORM</div>
+                <div style={{fontFamily:"'DM Serif Display',serif",fontSize:14,color:C.sand,fontStyle:"italic"}}>Turn positioning into presence.</div>
+              </div>
+            </div>
+            <div style={{display:"flex",alignItems:"center",gap:0}}>
+              <nav style={{display:"flex"}}>
+                {[["studio","My Studio"],["client","Client Builder"],["casestudy","Case Studies"]].map(([id,lbl])=>(
+                  <button key={id} onClick={()=>switchMain(id)} style={{padding:"14px 20px",background:mainTab===id?C.brown:"transparent",color:mainTab===id?C.cream:C.muted,border:"none",fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:11,letterSpacing:"0.18em"}}>{lbl.toUpperCase()}</button>
+                ))}
+              </nav>
+              <button onClick={()=>setTab("setup")} style={{padding:"14px 16px",background:"transparent",color:C.muted,border:"none",fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,letterSpacing:"0.14em",borderLeft:"1px solid rgba(255,255,255,0.07)"}}>⚙ KEY</button>
+            </div>
+          </header>
+
+          {(mainTab==="studio"||mainTab==="client") && (
+            <div style={{display:"flex",height:"calc(100vh - 65px)"}}>
+
+              <aside style={{width:218,flexShrink:0,borderRight:"1px solid rgba(255,255,255,0.07)",display:"flex",flexDirection:"column",overflowY:"auto"}}>
+                <div style={{padding:"18px 18px 10px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.muted,letterSpacing:"0.2em"}}>SECTIONS</div>
+                {SECTIONS.map(s => {
+                  const active=section===s.id, done=!!generated[s.id], isSpin=spinning===s.id;
+                  return (
+                    <button key={s.id} onClick={()=>setSection(s.id)} style={{display:"flex",alignItems:"center",gap:10,padding:"12px 18px",background:active?"rgba(244,240,232,0.95)":"transparent",color:active?C.black:done?C.sand:C.muted,border:"none",width:"100%",textAlign:"left",borderLeft:active?`3px solid ${C.brown}`:"3px solid transparent"}}>
+                      <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:11,color:active?C.brown:done?C.sandDark:C.muted,minWidth:22}}>{s.num}</span>
+                      <span style={{fontFamily:"'DM Serif Display',serif",fontSize:13,flex:1}}>{s.label}</span>
+                      {isSpin && <span style={{display:"inline-block",animation:"spin 1s linear infinite",opacity:0.5}}>◌</span>}
+                      {done && !isSpin && !active && <span style={{color:C.brown,fontSize:11}}>✓</span>}
+                    </button>
+                  );
+                })}
+                <div style={{padding:"16px 18px 22px",marginTop:"auto"}}>
+                  <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.muted,letterSpacing:"0.18em",marginBottom:7}}>{progress}/{SECTIONS.length} COMPLETE</div>
+                  <div style={{height:2,background:"rgba(255,255,255,0.07)",borderRadius:1}}>
+                    <div style={{height:"100%",width:`${(progress/SECTIONS.length)*100}%`,background:C.brown,transition:"width .5s",borderRadius:1}}/>
                   </div>
-                  <div>
-                    <div style={{display:"flex",justifyContent:"space-between",marginBottom:7}}>
-                      <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.sandDark,letterSpacing:"0.2em"}}>BRAND BRIEF</div>
-                      <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,color:clientCtx.length<60?C.brown:C.muted}}>{clientCtx.length} chars {clientCtx.length<60?"— more detail = better":"✓"}</div>
+                </div>
+              </aside>
+
+              <main style={{flex:1,overflow:"auto",display:"flex",flexDirection:"column"}}>
+                <div style={{padding:"20px 28px",borderBottom:"1px solid rgba(255,255,255,0.07)",background:"rgba(255,255,255,0.015)",flexShrink:0}}>
+
+                  {isStudio && (
+                    <div style={{marginBottom:16,padding:"14px 18px",background:"rgba(123,92,66,0.12)",borderLeft:`2px solid ${C.brown}`}}>
+                      <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.brown,letterSpacing:"0.2em",marginBottom:5}}>GENERATING FOR</div>
+                      <div style={{fontFamily:"'DM Serif Display',serif",fontSize:17,color:C.cream,marginBottom:5}}>The Mused Studio</div>
+                      <p style={{fontFamily:"Georgia,serif",fontSize:12.5,color:C.sand,lineHeight:1.65,margin:0}}>{STUDIO_CTX}</p>
                     </div>
-                    <textarea value={clientCtx} onChange={e=>setCC(e.target.value)} rows={5} placeholder="Describe the brand: what they do, who they serve, what makes them different, tone, goals…" style={inp}/>
-                    {clientCtx.trim().length>20&&(
-                      <div style={{marginTop:10,padding:"12px 16px",background:"rgba(123,92,66,0.1)",borderLeft:`2px solid ${C.brown}`}}>
-                        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.brown,letterSpacing:"0.18em",marginBottom:5}}>BRIEF PREVIEW</div>
-                        <p style={{fontFamily:"Georgia,serif",fontSize:12.5,lineHeight:1.7,color:C.sand,margin:0}}>{clientCtx}</p>
+                  )}
+
+                  {!isStudio && (
+                    <div style={{marginBottom:16}}>
+                      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:14}}>
+                        <div>
+                          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.sandDark,letterSpacing:"0.2em",marginBottom:7}}>CLIENT NAME</div>
+                          <input value={clientName} onChange={e=>setCN(e.target.value)} placeholder="e.g. Bloom Atelier" style={{...inp,fontFamily:"'DM Serif Display',serif",fontSize:16}}/>
+                        </div>
+                        <div>
+                          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.sandDark,letterSpacing:"0.2em",marginBottom:7}}>INDUSTRY</div>
+                          <input placeholder="e.g. Wellness, Fashion, Tech…" style={inp}/>
+                        </div>
                       </div>
+                      <div>
+                        <div style={{display:"flex",justifyContent:"space-between",marginBottom:7}}>
+                          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.sandDark,letterSpacing:"0.2em"}}>BRAND BRIEF</div>
+                          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,color:clientCtx.length<60?C.brown:C.muted}}>{clientCtx.length} chars {clientCtx.length<60?"— more detail = better":"✓"}</div>
+                        </div>
+                        <textarea value={clientCtx} onChange={e=>setCC(e.target.value)} rows={5} placeholder="Describe the brand: what they do, who they serve, what makes them different, tone, goals…" style={inp}/>
+                        {clientCtx.trim().length>20 && (
+                          <div style={{marginTop:10,padding:"12px 16px",background:"rgba(123,92,66,0.1)",borderLeft:`2px solid ${C.brown}`}}>
+                            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.brown,letterSpacing:"0.18em",marginBottom:5}}>BRIEF PREVIEW</div>
+                            <p style={{fontFamily:"Georgia,serif",fontSize:12.5,lineHeight:1.7,color:C.sand,margin:0}}>{clientCtx}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {err && <div style={{background:"rgba(140,30,30,0.25)",border:"1px solid rgba(200,70,70,0.4)",padding:"10px 16px",marginBottom:14,fontFamily:"'Barlow Condensed',sans-serif",fontSize:11,color:"#f5a0a0",letterSpacing:"0.06em",lineHeight:1.6,wordBreak:"break-word"}}>⚠ {err}</div>}
+
+                  <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+                    <button onClick={()=>genOne(section)} disabled={busy} style={{padding:"11px 22px",background:busy?C.muted:C.brown,color:C.cream,border:"none",fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:11,letterSpacing:"0.16em",opacity:busy?0.5:1}}>
+                      {spinning===section?"GENERATING…":`GENERATE ${activeSec ? activeSec.label.toUpperCase() : ""}`}
+                    </button>
+                    <button onClick={genAll} disabled={busy} style={{padding:"11px 22px",background:"transparent",color:busy?C.muted:C.sand,border:`1px solid ${busy?C.muted:C.sandDark}`,fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:11,letterSpacing:"0.16em",opacity:busy?0.45:1}}>
+                      {allBusy?`BUILDING… ${progress}/${SECTIONS.length}`:"✦  GENERATE ALL SECTIONS"}
+                    </button>
+                    {progress>0 && !busy && (
+                      <button onClick={()=>{setGenerated({});setErr("");}} style={{padding:"11px 16px",background:"transparent",color:C.muted,border:"1px solid rgba(255,255,255,0.08)",fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:10,letterSpacing:"0.14em"}}>RESET</button>
                     )}
                   </div>
                 </div>
-              )}
-              {err&&<div style={{background:"rgba(140,30,30,0.25)",border:"1px solid rgba(200,70,70,0.4)",padding:"10px 16px",marginBottom:14,fontFamily:"'Barlow Condensed',sans-serif",fontSize:11,color:"#f5a0a0",letterSpacing:"0.06em",lineHeight:1.6,wordBreak:"break-word"}}>⚠ {err}</div>}
-              <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-                <button onClick={()=>genOne(section)} disabled={busy} style={{padding:"11px 22px",background:busy?C.muted:C.brown,color:C.cream,border:"none",fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:11,letterSpacing:"0.16em",opacity:busy?0.5:1}}>
-                  {spinning===section?"GENERATING…":`GENERATE ${activeSec?.label.toUpperCase()}`}
-                </button>
-                <button onClick={genAll} disabled={busy} style={{padding:"11px 22px",background:"transparent",color:busy?C.muted:C.sand,border:`1px solid ${busy?C.muted:C.sandDark}`,fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:11,letterSpacing:"0.16em",opacity:busy?0.45:1}}>
-                  {allBusy?`BUILDING… ${progress}/${SECTIONS.length}`:"✦  GENERATE ALL SECTIONS"}
-                </button>
-                {progress>0&&!busy&&<button onClick={()=>{setGenerated({});setErr("");}} style={{padding:"11px 16px",background:"transparent",color:C.muted,border:"1px solid rgba(255,255,255,0.08)",fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:10,letterSpacing:"0.14em"}}>RESET</button>}
-              </div>
-            </div>
 
-            <div style={{flex:1,overflow:"auto",padding:"28px 28px 48px"}}>
-              <div style={{display:"flex",alignItems:"baseline",gap:14,marginBottom:24}}>
-                <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:900,fontSize:50,color:"rgba(255,255,255,0.04)",lineHeight:1}}>{activeSec?.num}</span>
-                <h2 style={{fontFamily:"'DM Serif Display',serif",fontSize:28,color:C.cream,fontWeight:400}}>{activeSec?.label}</h2>
-                {generated[section]&&<Tag>GENERATED</Tag>}
-              </div>
-              {spinning===section&&!generated[section]?(
-                <div style={{border:"1px dashed rgba(255,255,255,0.07)",padding:"72px 40px",textAlign:"center"}}>
-                  <span style={{fontSize:48,display:"inline-block",animation:"spin 1.5s linear infinite",opacity:0.2}}>◌</span>
-                  <p style={{fontFamily:"'DM Serif Display',serif",fontSize:17,fontStyle:"italic",color:C.muted,marginTop:16}}>Generating {activeSec?.label}…</p>
-                </div>
-              ):generated[section]?renderSection(section,generated[section]):(
-                <div style={{border:"1px dashed rgba(255,255,255,0.07)",padding:"72px 40px",textAlign:"center"}}>
-                  <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:900,fontSize:76,color:"rgba(255,255,255,0.03)",letterSpacing:"-0.04em",marginBottom:16}}>MUSED</div>
-                  <p style={{fontFamily:"'DM Serif Display',serif",fontSize:17,fontStyle:"italic",color:C.muted,marginBottom:8}}>This section is waiting to be built.</p>
-                  <p style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:11,color:"rgba(255,255,255,0.15)",letterSpacing:"0.1em"}}>{!isStudio&&!clientName?"Enter client name and brief above":"Click Generate above"}</p>
-                </div>
-              )}
-            </div>
-          </main>
-        </div>
-      )}
-
-      {tab==="casestudy"&&(
-        <div style={{padding:"50px 44px",maxWidth:980,margin:"0 auto"}}>
-          <div style={{marginBottom:44}}>
-            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.muted,letterSpacing:"0.24em",marginBottom:12}}>REFERENCE FILES</div>
-            <h2 style={{fontFamily:"'DM Serif Display',serif",fontSize:42,fontWeight:400,lineHeight:1.1,marginBottom:16}}>What we can learn<br/><em style={{color:C.sand}}>from these brands.</em></h2>
-          </div>
-          <div style={{display:"flex",flexDirection:"column",gap:3}}>
-            {CASES.map((cs,i)=>(
-              <div key={i}>
-                <button onClick={()=>setCaseOpen(caseOpen===i?null:i)} style={{width:"100%",textAlign:"left",display:"grid",gridTemplateColumns:"1fr auto",alignItems:"center",padding:"28px 32px",background:caseOpen===i?cs.color:"rgba(255,255,255,0.03)",border:"none",borderLeft:`4px solid ${cs.color}`,gap:20}}>
-                  <div>
-                    <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:caseOpen===i?"rgba(255,255,255,0.65)":C.muted,letterSpacing:"0.2em",marginBottom:7}}>{cs.type.toUpperCase()}</div>
-                    <div style={{fontFamily:"'DM Serif Display',serif",fontSize:24,color:C.cream}}>{cs.name}</div>
-                    <div style={{fontFamily:"Georgia,serif",fontSize:13,fontStyle:"italic",color:caseOpen===i?"rgba(255,255,255,0.75)":C.muted,marginTop:7,lineHeight:1.5}}>{cs.lesson}</div>
+                <div style={{flex:1,overflow:"auto",padding:"28px 28px 48px"}}>
+                  <div style={{display:"flex",alignItems:"baseline",gap:14,marginBottom:24}}>
+                    <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:900,fontSize:50,color:"rgba(255,255,255,0.04)",lineHeight:1}}>{activeSec ? activeSec.num : ""}</span>
+                    <h2 style={{fontFamily:"'DM Serif Display',serif",fontSize:28,color:C.cream,fontWeight:400}}>{activeSec ? activeSec.label : ""}</h2>
+                    {generated[section] && <Tag>GENERATED</Tag>}
                   </div>
-                  <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:24,color:caseOpen===i?C.cream:C.muted}}>{caseOpen===i?"−":"+"}</div>
-                </button>
-                {caseOpen===i&&(
-                  <div style={{background:"rgba(255,255,255,0.02)",borderLeft:`4px solid ${cs.color}`}}>
-                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr"}}>
-                      {[["MISSION",cs.mission],["VISION",cs.vision]].map(([l,v])=>(
-                        <div key={l} style={{padding:"24px 28px",borderBottom:"1px solid rgba(255,255,255,0.05)"}}>
-                          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.muted,letterSpacing:"0.2em",marginBottom:10}}>{l}</div>
-                          <p style={{fontFamily:"Georgia,serif",fontSize:14,lineHeight:1.75,color:C.sandLight}}>{v}</p>
+                  {spinning===section && !generated[section] ? (
+                    <div style={{border:"1px dashed rgba(255,255,255,0.07)",padding:"72px 40px",textAlign:"center"}}>
+                      <span style={{fontSize:48,display:"inline-block",animation:"spin 1.5s linear infinite",opacity:0.2}}>◌</span>
+                      <p style={{fontFamily:"'DM Serif Display',serif",fontSize:17,fontStyle:"italic",color:C.muted,marginTop:16}}>Generating {activeSec ? activeSec.label : ""}…</p>
+                    </div>
+                  ) : generated[section] ? renderSection(section, generated[section]) : (
+                    <div style={{border:"1px dashed rgba(255,255,255,0.07)",padding:"72px 40px",textAlign:"center"}}>
+                      <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:900,fontSize:76,color:"rgba(255,255,255,0.03)",letterSpacing:"-0.04em",marginBottom:16}}>MUSED</div>
+                      <p style={{fontFamily:"'DM Serif Display',serif",fontSize:17,fontStyle:"italic",color:C.muted,marginBottom:8}}>This section is waiting to be built.</p>
+                      <p style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:11,color:"rgba(255,255,255,0.15)",letterSpacing:"0.1em"}}>{!isStudio&&!clientName?"Enter client name and brief above":"Click Generate above"}</p>
+                    </div>
+                  )}
+                </div>
+              </main>
+            </div>
+          )}
+
+          {mainTab==="casestudy" && (
+            <div style={{padding:"50px 44px",maxWidth:980,margin:"0 auto"}}>
+              <div style={{marginBottom:44}}>
+                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.muted,letterSpacing:"0.24em",marginBottom:12}}>REFERENCE FILES</div>
+                <h2 style={{fontFamily:"'DM Serif Display',serif",fontSize:42,fontWeight:400,lineHeight:1.1,marginBottom:16}}>What we can learn<br/><em style={{color:C.sand}}>from these brands.</em></h2>
+              </div>
+              <div style={{display:"flex",flexDirection:"column",gap:3}}>
+                {CASES.map((cs,i)=>(
+                  <div key={i}>
+                    <button onClick={()=>setCaseOpen(caseOpen===i?null:i)} style={{width:"100%",textAlign:"left",display:"grid",gridTemplateColumns:"1fr auto",alignItems:"center",padding:"28px 32px",background:caseOpen===i?cs.color:"rgba(255,255,255,0.03)",border:"none",borderLeft:`4px solid ${cs.color}`,gap:20}}>
+                      <div>
+                        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:caseOpen===i?"rgba(255,255,255,0.65)":C.muted,letterSpacing:"0.2em",marginBottom:7}}>{cs.type.toUpperCase()}</div>
+                        <div style={{fontFamily:"'DM Serif Display',serif",fontSize:24,color:C.cream}}>{cs.name}</div>
+                        <div style={{fontFamily:"Georgia,serif",fontSize:13,fontStyle:"italic",color:caseOpen===i?"rgba(255,255,255,0.75)":C.muted,marginTop:7,lineHeight:1.5}}>{cs.lesson}</div>
+                      </div>
+                      <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:24,color:caseOpen===i?C.cream:C.muted}}>{caseOpen===i?"−":"+"}</div>
+                    </button>
+                    {caseOpen===i && (
+                      <div style={{background:"rgba(255,255,255,0.02)",borderLeft:`4px solid ${cs.color}`}}>
+                        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr"}}>
+                          {[["MISSION",cs.mission],["VISION",cs.vision]].map(([l,v])=>(
+                            <div key={l} style={{padding:"24px 28px",borderBottom:"1px solid rgba(255,255,255,0.05)"}}>
+                              <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.muted,letterSpacing:"0.2em",marginBottom:10}}>{l}</div>
+                              <p style={{fontFamily:"Georgia,serif",fontSize:14,lineHeight:1.75,color:C.sandLight}}>{v}</p>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr"}}>
-                      <div style={{padding:"24px 28px"}}>
-                        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.muted,letterSpacing:"0.2em",marginBottom:12}}>BRAND VALUES</div>
-                        <div style={{display:"flex",flexWrap:"wrap",gap:7}}>{cs.values.map(v=><span key={v} style={{background:cs.color+"1e",color:C.sandLight,padding:"4px 11px",fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:11,border:`1px solid ${cs.color}3e`}}>{v}</span>)}</div>
+                        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr"}}>
+                          <div style={{padding:"24px 28px"}}>
+                            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.muted,letterSpacing:"0.2em",marginBottom:12}}>BRAND VALUES</div>
+                            <div style={{display:"flex",flexWrap:"wrap",gap:7}}>{cs.values.map(v=><span key={v} style={{background:cs.color+"1e",color:C.sandLight,padding:"4px 11px",fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:11,border:`1px solid ${cs.color}3e`}}>{v}</span>)}</div>
+                          </div>
+                          <div style={{padding:"24px 28px"}}>
+                            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.muted,letterSpacing:"0.2em",marginBottom:12}}>BRAND VOICE</div>
+                            <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>{cs.voice.map(v=><span key={v} style={{border:"1px solid rgba(255,255,255,0.13)",color:C.sand,padding:"5px 15px",fontFamily:"'DM Serif Display',serif",fontSize:14,fontStyle:"italic"}}>{v}</span>)}</div>
+                          </div>
+                        </div>
+                        <div style={{padding:"20px 28px",background:cs.color+"14",borderTop:"1px solid rgba(255,255,255,0.05)"}}>
+                          <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:cs.color,letterSpacing:"0.2em"}}>MUSED INSIGHT  </span>
+                          <span style={{fontFamily:"Georgia,serif",fontSize:14,fontStyle:"italic",color:C.sandLight,lineHeight:1.75}}>{cs.insight}</span>
+                        </div>
                       </div>
-                      <div style={{padding:"24px 28px"}}>
-                        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.muted,letterSpacing:"0.2em",marginBottom:12}}>BRAND VOICE</div>
-                        <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>{cs.voice.map(v=><span key={v} style={{border:"1px solid rgba(255,255,255,0.13)",color:C.sand,padding:"5px 15px",fontFamily:"'DM Serif Display',serif",fontSize:14,fontStyle:"italic"}}>{v}</span>)}</div>
-                      </div>
-                    </div>
-                    <div style={{padding:"20px 28px",background:cs.color+"14",borderTop:"1px solid rgba(255,255,255,0.05)"}}>
-                      <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:cs.color,letterSpacing:"0.2em"}}>MUSED INSIGHT  </span>
-                      <span style={{fontFamily:"Georgia,serif",fontSize:14,fontStyle:"italic",color:C.sandLight,lineHeight:1.75}}>{cs.insight}</span>
-                    </div>
+                    )}
                   </div>
-                )}
+                ))}
               </div>
-            ))}
-          </div>
-          <div style={{marginTop:3,background:C.brown,padding:"32px"}}>
-            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.black,letterSpacing:"0.24em",opacity:0.5,marginBottom:14}}>THE COMMON THREAD</div>
-            <p style={{fontFamily:"'DM Serif Display',serif",fontSize:20,fontStyle:"italic",lineHeight:1.65,color:C.cream,margin:0}}>Both brands win because they have one clear emotional job. Not just what they sell — <em>how they make people feel about themselves.</em> That is the work Mused does.</p>
-          </div>
+              <div style={{marginTop:3,background:C.brown,padding:"32px"}}>
+                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.black,letterSpacing:"0.24em",opacity:0.5,marginBottom:14}}>THE COMMON THREAD</div>
+                <p style={{fontFamily:"'DM Serif Display',serif",fontSize:20,fontStyle:"italic",lineHeight:1.65,color:C.cream,margin:0}}>Both brands win because they have one clear emotional job. Not just what they sell — <em>how they make people feel about themselves.</em> That is the work Mused does.</p>
+              </div>
+            </div>
+          )}
         </div>
-      )}
-    </div>
-  );
-}
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
