@@ -1,945 +1,1200 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The Mused Studio — Brand Strategy Platform</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body, #root { height: 100%; }
-    body { background: #0D0D0B; color: #F4F0E8; font-family: Georgia, serif; }
-    ::placeholder { color: #555550 !important; opacity: 1 !important; }
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-thumb { background: #7B5C42; border-radius: 2px; }
-    input:focus, textarea:focus { outline: none !important; }
-    textarea { resize: vertical; }
-    button { cursor: pointer; font-family: inherit; }
-    button:disabled { cursor: not-allowed; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes shimmer {
-      0% { opacity: 0.3; } 50% { opacity: 0.7; } 100% { opacity: 0.3; }
-    }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>The Mused Studio — Brand Strategy Platform</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body,#root{height:100%}
+body{background:#0D0D0B;color:#F4F0E8;font-family:Georgia,serif}
+::placeholder{color:#555550!important;opacity:1!important}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#7B5C42;border-radius:2px}
+input:focus,textarea:focus,select:focus{outline:none!important}
+textarea{resize:vertical}
+button{cursor:pointer;font-family:inherit}
+button:disabled{cursor:not-allowed}
+select{-webkit-appearance:none;appearance:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shakeX{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+</style>
 </head>
 <body>
-  <div id="root"></div>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useRef} = React;
 
-  <script type="text/babel">
-    const { useState, useEffect, useRef } = React;
+const C = {black:"#0D0D0B",sand:"#C8C0A8",sandL:"#DDD8CC",sandD:"#A89E88",brown:"#7B5C42",brownD:"#5C4332",green:"#2D4A3E",cream:"#F4F0E8",muted:"#555550"};
+const PASSWORD = "Mused46842";
+const STUDIO_NAME = "The Mused Studio";
+const STUDIO_CTX = "A creative brand agency founded in Nigeria, working with fashion, tech, wellness, and lifestyle brands across Nigeria, Africa, and globally. Services: brand strategy, creative direction, motion content, and brand management. We work with founders and growing businesses anywhere in the world who know they have something special but cannot yet articulate or show it.";
 
-    /* ── PALETTE ─────────────────────────────────────────────────────────── */
-    const C = {
-      black:    "#0D0D0B",
-      sand:     "#C8C0A8",
-      sandLight:"#DDD8CC",
-      sandDark: "#A89E88",
-      brown:    "#7B5C42",
-      brownDark:"#5C4332",
-      green:    "#2D4A3E",
-      cream:    "#F4F0E8",
-      muted:    "#555550",
-    };
+const GROUPS = [
+  {label:"BRAND FOUNDATION", color:C.brown, sections:[
+    {id:"overview",num:"01",label:"Brand Overview"},
+    {id:"mission",num:"02",label:"Mission & Vision"},
+    {id:"values",num:"03",label:"Core Values"},
+    {id:"positioning",num:"04",label:"Brand Positioning"},
+  ]},
+  {label:"MARKET INTELLIGENCE", color:"#4A6741", sections:[
+    {id:"competitors",num:"05",label:"Competitor Analysis"},
+    {id:"market",num:"06",label:"Market Gaps & Opportunities"},
+  ]},
+  {label:"TARGET AUDIENCE", color:"#3D5A7A", sections:[
+    {id:"icp",num:"07",label:"Ideal Customer Profile"},
+    {id:"psychographics",num:"08",label:"Psychographics & Behavior"},
+    {id:"painpoints",num:"09",label:"Aspirations & Pain Points"},
+  ]},
+  {label:"BRAND IDENTITY", color:"#6B4E3D", sections:[
+    {id:"personality",num:"10",label:"Brand Personality"},
+    {id:"voice",num:"11",label:"Brand Voice & Messaging"},
+    {id:"tone",num:"12",label:"Tone of Voice"},
+    {id:"visual",num:"13",label:"Visual Identity"},
+    {id:"experience",num:"14",label:"Brand Experience"},
+    {id:"reputation",num:"15",label:"Brand Reputation"},
+  ]},
+  {label:"MARKETING & STORYTELLING", color:"#5A3D6B", sections:[
+    {id:"content",num:"16",label:"Content Strategy"},
+    {id:"storytelling",num:"17",label:"Storytelling Framework"},
+    {id:"community",num:"18",label:"Community Building"},
+  ]},
+  {label:"GROWTH", color:"#3D6B5A", sections:[
+    {id:"roadmap",num:"19",label:"Growth Roadmap"},
+  ]},
+];
 
-    /* ── CONSTANTS ───────────────────────────────────────────────────────── */
-    const PASSWORD = "Mused46842";
+const ALL_SECTIONS = GROUPS.flatMap(g => g.sections);
 
-    const SECTIONS = [
-      { id:"mission",     num:"01", label:"Mission & Vision"     },
-      { id:"values",      num:"02", label:"Brand Values"         },
-      { id:"audience",    num:"03", label:"Audience Personas"    },
-      { id:"problems",    num:"04", label:"Problems & Solutions" },
-      { id:"competitors", num:"05", label:"Competitor Analysis"  },
-      { id:"voice",       num:"06", label:"Brand Voice"          },
-      { id:"creative",    num:"07", label:"Creative Direction"   },
-    ];
+const SHAPES = {
+  overview:`{"tagline":"","who_we_are":"","what_we_do":"","why_we_exist":"","brand_promise":"","one_line":""}`,
+  mission:`{"mission_short":"","mission_long":"","vision_short":"","vision_long":"","taglines":["","",""]}`,
+  values:`{"values":[{"name":"","description":""},{"name":"","description":""},{"name":"","description":""},{"name":"","description":""},{"name":"","description":""},{"name":"","description":""}]}`,
+  positioning:`{"positioning_statement":"","differentiation":"","brand_promise":"","value_proposition":"","from_perception":"","to_perception":""}`,
+  competitors:`{"global":[{"name":"","country":"","strength":"","weakness":"","opportunity":""},{"name":"","country":"","strength":"","weakness":"","opportunity":""},{"name":"","country":"","strength":"","weakness":"","opportunity":""}],"local":[{"name":"","country":"","strength":"","weakness":"","opportunity":""},{"name":"","country":"","strength":"","weakness":"","opportunity":""}]}`,
+  market:`{"gaps":["","",""],"opportunities":["","",""],"our_advantage":"","key_insight":""}`,
+  icp:`{"description":"","age_range":"","gender":"","location":"","income_level":"","occupation":"","education":"","profile_statement":""}`,
+  psychographics:`{"mindset":"","core_values":["","","","",""],"motivations":["","",""],"behavioral_traits":["","","",""],"client_quote":""}`,
+  painpoints:`{"aspirations":["","","","",""],"pain_points":["","","",""],"what_they_seek":"","why_they_choose_us":""}`,
+  personality:`{"archetype":"","description":"","keywords":["","","","","",""],"feels_like":"","not_this":""}`,
+  voice:`{"characteristics":[{"trait":"","description":""},{"trait":"","description":""},{"trait":"","description":""},{"trait":"","description":""},{"trait":"","description":""}],"messaging_pillars":[{"theme":"","message":""},{"theme":"","message":""},{"theme":"","message":""},{"theme":"","message":""},{"theme":"","message":""}]}`,
+  tone:`{"social_media":{"tone":"","example":""},"with_clients":{"tone":"","example":""},"marketing":{"tone":"","example":""},"brand_films":{"tone":"","example":""}}`,
+  visual:`{"logo_direction":"","primary_colors":"","secondary_colors":"","color_meaning":"","typography":"","imagery_style":""}`,
+  experience:`{"discovery":"","consultation":"","production":"","delivery":"","after_experience":""}`,
+  reputation:`{"current_position":"","goal":"","from_perception":"","to_perception":"","key_actions":["","",""]}`,
+  content:`{"pillars":["","","",""],"instagram":"","tiktok":"","youtube":"","linkedin":"","formats":["","","","",""]}`,
+  storytelling:`{"pillars":[{"name":"","description":""},{"name":"","description":""},{"name":"","description":""},{"name":"","description":""},{"name":"","description":""}],"cultural_differentiation":"","content_formats":["","","","",""]}`,
+  community:`{"vision":"","approach":"","initiatives":["","",""],"community_statement":"","channels":["","",""]}`,
+  roadmap:`{"elevate":["","","",""],"expand_influence":["","",""],"global_presence":["","",""],"playbook":["","","","",""]}`,
+};
 
-    const STUDIO_NAME = "The Mused Studio";
-    const STUDIO_CTX  = "A creative brand agency founded in Nigeria, working with fashion, tech, wellness, and lifestyle brands across Nigeria, Africa, and globally. Services: brand strategy, creative direction, motion content, and brand management. We work with founders and growing businesses anywhere in the world who know they have something special but cannot yet articulate or show it.";
+const PROMPTS = {
+  overview:(n,c)=>`You are a senior brand strategist. Brand: "${n}". Context: ${c}\n\nWrite a compelling brand overview. Be specific and distinct.\n\nReturn ONLY this JSON:\n${SHAPES.overview}`,
+  mission:(n,c)=>`You are a senior brand strategist. Brand: "${n}". Context: ${c}\n\nWrite mission, vision and 3 tagline options. Be specific, not generic.\n\nReturn ONLY this JSON:\n${SHAPES.mission}`,
+  values:(n,c)=>`You are a senior brand strategist. Brand: "${n}". Context: ${c}\n\nWrite 6 DISTINCTIVE brand values. Avoid generic ones like "integrity". Make them specific to this brand.\n\nReturn ONLY this JSON:\n${SHAPES.values}`,
+  positioning:(n,c)=>`You are a senior brand strategist. Brand: "${n}". Context: ${c}\n\nWrite the brand positioning including differentiation and value proposition. Include the perception shift (from→to).\n\nReturn ONLY this JSON:\n${SHAPES.positioning}`,
+  competitors:(n,c)=>`You are a senior brand strategist. Brand: "${n}". Context: ${c}\n\nIdentify 3 global AND 2 local/regional competitors who offer THE EXACT SAME type of service. Do NOT list unrelated businesses.\n\nReturn ONLY this JSON:\n${SHAPES.competitors}`,
+  market:(n,c)=>`You are a senior brand strategist. Brand: "${n}". Context: ${c}\n\nIdentify real market gaps, specific opportunities, and this brand's unique advantage.\n\nReturn ONLY this JSON:\n${SHAPES.market}`,
+  icp:(n,c)=>`You are a senior brand strategist. Brand: "${n}". Context: ${c}\n\nDescribe the ideal customer profile with specific demographics. Be precise.\n\nReturn ONLY this JSON:\n${SHAPES.icp}`,
+  psychographics:(n,c)=>`You are a senior brand strategist. Brand: "${n}". Context: ${c}\n\nDescribe the deep psychographic profile of the ideal customer: mindset, values, motivations, behaviors.\n\nReturn ONLY this JSON:\n${SHAPES.psychographics}`,
+  painpoints:(n,c)=>`You are a senior brand strategist. Brand: "${n}". Context: ${c}\n\nDescribe what the audience aspires to and what pain points they face. What do they seek and why do they choose this brand?\n\nReturn ONLY this JSON:\n${SHAPES.painpoints}`,
+  personality:(n,c)=>`You are a senior brand strategist. Brand: "${n}". Context: ${c}\n\nDefine the brand archetype, personality keywords, what it feels like, and what it is NOT.\n\nReturn ONLY this JSON:\n${SHAPES.personality}`,
+  voice:(n,c)=>`You are a senior brand strategist. Brand: "${n}". Context: ${c}\n\nDefine 5 brand voice characteristics and 5 messaging pillars with specific message examples.\n\nReturn ONLY this JSON:\n${SHAPES.voice}`,
+  tone:(n,c)=>`You are a senior brand strategist. Brand: "${n}". Context: ${c}\n\nDefine tone of voice for 4 contexts: social media, with clients, marketing campaigns, brand films. Each needs a tone description and real example sentence.\n\nReturn ONLY this JSON:\n${SHAPES.tone}`,
+  visual:(n,c)=>`You are a senior brand strategist. Brand: "${n}". Context: ${c}\n\nDefine visual identity direction: logo direction, color palette with meaning, typography style, imagery style.\n\nReturn ONLY this JSON:\n${SHAPES.visual}`,
+  experience:(n,c)=>`You are a senior brand strategist. Brand: "${n}". Context: ${c}\n\nDefine how clients experience this brand at each stage: discovery, consultation, production, delivery, after-experience.\n\nReturn ONLY this JSON:\n${SHAPES.experience}`,
+  reputation:(n,c)=>`You are a senior brand strategist. Brand: "${n}". Context: ${c}\n\nDefine the brand reputation strategy: current position, goal, perception shift (from→to), and key actions.\n\nReturn ONLY this JSON:\n${SHAPES.reputation}`,
+  content:(n,c)=>`You are a senior brand strategist. Brand: "${n}". Context: ${c}\n\nDefine the content strategy: 4 content pillars, platform-specific strategies for Instagram/TikTok/YouTube/LinkedIn, and content formats.\n\nReturn ONLY this JSON:\n${SHAPES.content}`,
+  storytelling:(n,c)=>`You are a senior brand strategist. Brand: "${n}". Context: ${c}\n\nDefine 5 storytelling pillars, the cultural differentiation approach, and specific content formats.\n\nReturn ONLY this JSON:\n${SHAPES.storytelling}`,
+  community:(n,c)=>`You are a senior brand strategist. Brand: "${n}". Context: ${c}\n\nDefine the community building vision, approach, specific initiatives, and which channels to use.\n\nReturn ONLY this JSON:\n${SHAPES.community}`,
+  roadmap:(n,c)=>`You are a senior brand strategist. Brand: "${n}". Context: ${c}\n\nDefine the growth roadmap: actions to elevate brand, expand influence, achieve global presence, and core playbook principles.\n\nReturn ONLY this JSON:\n${SHAPES.roadmap}`,
+};
 
-    const SHAPES = {
-      mission:     `{"mission_short":"","mission_long":"","vision_short":"","vision_long":""}`,
-      values:      `{"values":[{"name":"","description":""},{"name":"","description":""},{"name":"","description":""},{"name":"","description":""},{"name":"","description":""},{"name":"","description":""}]}`,
-      audience:    `{"personas":[{"name":"","age":"","occupation":"","personality":"","pain_points":"","goals":"","quote":""},{"name":"","age":"","occupation":"","personality":"","pain_points":"","goals":"","quote":""}]}`,
-      problems:    `{"items":[{"problem":"","solution":""},{"problem":"","solution":""},{"problem":"","solution":""}]}`,
-      competitors: `{"competitors":[{"name":"","strength":"","weakness":"","opportunity":""},{"name":"","strength":"","weakness":"","opportunity":""},{"name":"","strength":"","weakness":"","opportunity":""}]}`,
-      voice:       `{"traits":[{"name":"","description":"","do":"","dont":""},{"name":"","description":"","do":"","dont":""},{"name":"","description":"","do":"","dont":""}]}`,
-      creative:    `{"overview":"","typography":"","colors":"","imagery":"","keywords":["","","","",""]}`,
-    };
+async function callAPI(sectionId, name, ctx) {
+  const prompt = PROMPTS[sectionId](name, ctx);
+  const res = await fetch("/api/chat", {
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({model:"claude-opus-4-5", max_tokens:1500, messages:[{role:"user",content:prompt}]}),
+  });
+  const data = await res.json();
+  if (!res.ok || data.error) throw new Error(data.error?.message || `Error ${res.status}`);
+  const raw = (data.content||[]).map(b=>b.type==="text"?b.text:"").filter(Boolean).join("\n").trim();
+  if (!raw) throw new Error("Empty response");
+  try{return JSON.parse(raw)}catch(_){}
+  const s=raw.replace(/^```(?:json)?\s*/i,"").replace(/\s*```\s*$/i,"").trim();
+  try{return JSON.parse(s)}catch(_){}
+  const m=raw.match(/\{[\s\S]*\}/);
+  if(m){try{return JSON.parse(m[0])}catch(_){}}
+  throw new Error("Parse failed: "+raw.slice(0,100));
+}
 
-    const PROMPTS = {
-      mission:     (n,c) => `You are a senior brand strategist. Brand: "${n}". Context: ${c}\n\nWrite a specific mission and vision for this brand. Do not be generic.\n\nReturn ONLY this JSON:\n${SHAPES.mission}`,
-      values:      (n,c) => `You are a senior brand strategist. Brand: "${n}". Context: ${c}\n\nWrite 6 distinctive brand values. Avoid generic values like "integrity" — make them specific to this brand.\n\nReturn ONLY this JSON:\n${SHAPES.values}`,
-      audience:    (n,c) => `You are a senior brand strategist. Brand: "${n}". Context: ${c}\n\nDescribe 2 realistic audience personas who would hire or buy from this brand. Use real job titles and specific frustrations.\n\nReturn ONLY this JSON:\n${SHAPES.audience}`,
-      problems:    (n,c) => `You are a senior brand strategist. Brand: "${n}". Context: ${c}\n\nIdentify 3 real problems this brand's clients face and how this brand specifically solves each.\n\nReturn ONLY this JSON:\n${SHAPES.problems}`,
-      competitors: (n,c) => `You are a senior brand strategist. Brand: "${n}". Context: ${c}\n\nIdentify 3 DIRECT competitors offering the EXACT SAME type of service or product. Do NOT list brands from unrelated industries.\n\nReturn ONLY this JSON:\n${SHAPES.competitors}`,
-      voice:       (n,c) => `You are a senior brand strategist. Brand: "${n}". Context: ${c}\n\nDefine 3 brand voice traits. Each "do" and "dont" must be a realistic example sentence, not a description.\n\nReturn ONLY this JSON:\n${SHAPES.voice}`,
-      creative:    (n,c) => `You are a senior brand strategist. Brand: "${n}". Context: ${c}\n\nDefine the creative direction. Be specific — real font styles, real color moods, real image aesthetics.\n\nReturn ONLY this JSON:\n${SHAPES.creative}`,
-    };
+async function callTool(prompt, maxTokens=1500) {
+  const res = await fetch("/api/chat", {
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({model:"claude-opus-4-5", max_tokens:maxTokens, messages:[{role:"user",content:prompt}]}),
+  });
+  const data = await res.json();
+  if (!res.ok || data.error) throw new Error(data.error?.message || `Error ${res.status}`);
+  const raw = (data.content||[]).map(b=>b.type==="text"?b.text:"").filter(Boolean).join("\n").trim();
+  if (!raw) throw new Error("Empty response");
+  try{return JSON.parse(raw)}catch(_){}
+  const s=raw.replace(/^```(?:json)?\s*/i,"").replace(/\s*```\s*$/i,"").trim();
+  try{return JSON.parse(s)}catch(_){}
+  const m=raw.match(/\{[\s\S]*\}/);
+  if(m){try{return JSON.parse(m[0])}catch(_){}}
+  throw new Error("Parse failed");
+}
 
-    /* ── API ─────────────────────────────────────────────────────────────── */
-    async function callAPI(sectionId, name, ctx) {
-      const prompt = PROMPTS[sectionId](name, ctx);
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-opus-4-5",
-          max_tokens: 1000,
-          messages: [{ role: "user", content: prompt }],
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok || data.error) throw new Error(data.error?.message || `Error ${res.status}`);
-      const raw = (data.content || []).map(b => b.type === "text" ? b.text : "").filter(Boolean).join("\n").trim();
-      if (!raw) throw new Error("Empty response — try again.");
-      try { return JSON.parse(raw); } catch (_) {}
-      const s = raw.replace(/^```(?:json)?\s*/i,"").replace(/\s*```\s*$/i,"").trim();
-      try { return JSON.parse(s); } catch (_) {}
-      const m = raw.match(/\{[\s\S]*\}/);
-      if (m) { try { return JSON.parse(m[0]); } catch (_) {} }
-      throw new Error("Could not parse response — try again.");
-    }
+// ── UI ATOMS ──────────────────────────────────────
+const Tag=({children,bg=C.brown,fg=C.cream})=><span style={{display:"inline-block",background:bg,color:fg,padding:"3px 10px",fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:9,letterSpacing:"0.2em"}}>{children}</span>;
+const FL=({children,color=C.sand})=><div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color,letterSpacing:"0.2em",marginBottom:6,opacity:0.55}}>{children}</div>;
+const Card=({bg=C.black,children,p=24})=><div style={{background:bg,padding:p}}>{children}</div>;
+const SectionTitle=({num,label,done})=>(
+  <div style={{display:"flex",alignItems:"baseline",gap:14,marginBottom:24}}>
+    <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:900,fontSize:50,color:"rgba(255,255,255,0.04)",lineHeight:1}}>{num}</span>
+    <h2 style={{fontFamily:"'DM Serif Display',serif",fontSize:26,color:C.cream,fontWeight:400}}>{label}</h2>
+    {done&&<Tag>GENERATED</Tag>}
+  </div>
+);
+const Err=({msg})=>msg?<div style={{background:"rgba(140,30,30,0.25)",border:"1px solid rgba(200,70,70,0.4)",padding:"10px 16px",marginBottom:14,fontFamily:"'Barlow Condensed',sans-serif",fontSize:11,color:"#f5a0a0",letterSpacing:"0.06em",lineHeight:1.6,wordBreak:"break-word"}}>⚠ {msg}</div>:null;
+const Spinner=({label})=>(
+  <div style={{border:"1px dashed rgba(255,255,255,0.07)",padding:"72px 40px",textAlign:"center"}}>
+    <span style={{fontSize:48,display:"inline-block",animation:"spin 1.5s linear infinite",opacity:0.2}}>◌</span>
+    <p style={{fontFamily:"'DM Serif Display',serif",fontSize:17,fontStyle:"italic",color:C.muted,marginTop:16}}>Generating {label}…</p>
+  </div>
+);
+const Empty=({msg="Click Generate above"})=>(
+  <div style={{border:"1px dashed rgba(255,255,255,0.07)",padding:"72px 40px",textAlign:"center"}}>
+    <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:900,fontSize:76,color:"rgba(255,255,255,0.03)",letterSpacing:"-0.04em",marginBottom:16}}>MUSED</div>
+    <p style={{fontFamily:"'DM Serif Display',serif",fontSize:17,fontStyle:"italic",color:C.muted,marginBottom:8}}>Waiting to be built.</p>
+    <p style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:11,color:"rgba(255,255,255,0.15)",letterSpacing:"0.1em"}}>{msg}</p>
+  </div>
+);
+const P=({children,color=C.sandL,size=13.5,style={}})=><p style={{fontFamily:"Georgia,serif",fontSize:size,lineHeight:1.8,color,margin:0,...style}}>{children}</p>;
+const H=({children,size=17,color=C.cream})=><div style={{fontFamily:"'DM Serif Display',serif",fontSize:size,color,marginBottom:8}}>{children}</div>;
+const Pill=({children,bg=C.brown,fg=C.cream})=><span style={{display:"inline-block",background:bg,color:fg,padding:"4px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:11,letterSpacing:"0.1em",margin:"3px 3px"}}>{children}</span>;
+const inp=(extra={})=>({width:"100%",padding:"11px 14px",background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.12)",color:C.cream,fontFamily:"Georgia,serif",fontSize:14,lineHeight:1.6,...extra});
+const BtnPrimary=({onClick,disabled,children,w})=>(
+  <button onClick={onClick} disabled={disabled} style={{padding:"11px 22px",background:disabled?C.muted:C.brown,color:C.cream,border:"none",fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:11,letterSpacing:"0.16em",opacity:disabled?0.5:1,width:w}}>
+    {children}
+  </button>
+);
+const BtnOutline=({onClick,disabled,children})=>(
+  <button onClick={onClick} disabled={disabled} style={{padding:"11px 22px",background:"transparent",color:disabled?C.muted:C.sand,border:`1px solid ${disabled?C.muted:C.sandD}`,fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:11,letterSpacing:"0.16em",opacity:disabled?0.45:1}}>
+    {children}
+  </button>
+);
 
-    /* ── SMALL COMPONENTS ────────────────────────────────────────────────── */
-    const Tag = ({ children, bg=C.brown, fg=C.cream }) => (
-      <span style={{ display:"inline-block", background:bg, color:fg, padding:"3px 10px",
-        fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:9, letterSpacing:"0.2em" }}>
-        {children}
-      </span>
-    );
-
-    const FieldLabel = ({ children }) => (
-      <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontSize:9, fontWeight:700,
-        color:C.sand, letterSpacing:"0.2em", marginBottom:8, opacity:0.5 }}>
-        {children}
+// ── SECTION RENDERERS ─────────────────────────────
+const Renderers = {
+  overview: ({d})=>(
+    <div style={{display:"flex",flexDirection:"column",gap:3}}>
+      <div style={{background:C.brown,padding:"34px 32px"}}>
+        <FL>TAGLINE</FL>
+        <div style={{fontFamily:"'DM Serif Display',serif",fontSize:28,fontStyle:"italic",color:C.cream,marginBottom:6}}>"{d.tagline}"</div>
+        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:12,color:"rgba(255,255,255,0.4)",letterSpacing:"0.15em"}}>{d.one_line}</div>
       </div>
-    );
-
-    /* ── SECTION RENDERERS ───────────────────────────────────────────────── */
-    const MissionOut = ({ d }) => (
-      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:3 }}>
-        {[
-          { tag:"MISSION", short:d.mission_short, long:d.mission_long, bg:C.black,  tb:C.brown },
-          { tag:"VISION",  short:d.vision_short,  long:d.vision_long,  bg:C.green,  tb:C.sand  },
-        ].map(({ tag, short, long, bg, tb }) => (
-          <div key={tag} style={{ background:bg, padding:"34px 30px" }}>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:3}}>
+        {[["WHO WE ARE",d.who_we_are,C.black],["WHAT WE DO",d.what_we_do,C.green],["WHY WE EXIST",d.why_we_exist,C.black],["BRAND PROMISE",d.brand_promise,C.green]].map(([l,v,bg])=>(
+          <div key={l} style={{background:bg,padding:24}}><FL>{l}</FL><P>{v}</P></div>
+        ))}
+      </div>
+    </div>
+  ),
+  mission: ({d})=>(
+    <div style={{display:"flex",flexDirection:"column",gap:3}}>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:3}}>
+        {[{tag:"MISSION",short:d.mission_short,long:d.mission_long,bg:C.black,tb:C.brown},{tag:"VISION",short:d.vision_short,long:d.vision_long,bg:C.green,tb:C.sand}].map(({tag,short,long,bg,tb})=>(
+          <div key={tag} style={{background:bg,padding:"34px 30px"}}>
             <Tag bg={tb} fg={C.black}>{tag}</Tag>
-            <p style={{ fontFamily:"'DM Serif Display',serif", fontSize:20, lineHeight:1.55,
-              color:C.cream, margin:"16px 0", fontStyle:"italic" }}>"{short}"</p>
-            <div style={{ width:32, height:1, background:tb, marginBottom:16 }} />
-            <p style={{ fontFamily:"Georgia,serif", fontSize:13.5, lineHeight:1.85, color:C.sand, margin:0 }}>{long}</p>
+            <p style={{fontFamily:"'DM Serif Display',serif",fontSize:20,lineHeight:1.55,color:C.cream,margin:"16px 0",fontStyle:"italic"}}>"{short}"</p>
+            <div style={{width:32,height:1,background:tb,marginBottom:16}}/>
+            <P color={C.sand} size={13.5}>{long}</P>
           </div>
         ))}
       </div>
-    );
-
-    const ValuesOut = ({ d }) => {
-      const bgs = [C.black, C.green, C.brown, C.black, C.green, C.brown];
-      return (
-        <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:3 }}>
-          {(d.values||[]).map((v,i) => (
-            <div key={i} style={{ background:bgs[i%6], padding:"24px 20px" }}>
-              <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:11,
-                color:C.sand, opacity:0.4, marginBottom:10 }}>0{i+1}</div>
-              <div style={{ fontFamily:"'DM Serif Display',serif", fontSize:17, color:C.cream, marginBottom:10 }}>{v.name}</div>
-              <p style={{ fontFamily:"Georgia,serif", fontSize:12.5, lineHeight:1.75, color:C.sand, margin:0 }}>{v.description}</p>
+      <div style={{background:"rgba(255,255,255,0.03)",padding:24,borderLeft:`3px solid ${C.brown}`}}>
+        <FL>TAGLINE OPTIONS</FL>
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          {(d.taglines||[]).map((t,i)=>(
+            <div key={i} style={{fontFamily:"'DM Serif Display',serif",fontSize:16,fontStyle:"italic",color:C.sand}}>
+              <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:10,color:C.brown,fontStyle:"normal",marginRight:12}}>0{i+1}</span>{t}
             </div>
           ))}
         </div>
-      );
-    };
-
-    const PersonasOut = ({ d }) => (
-      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:3 }}>
-        {(d.personas||[]).map((p,i) => (
-          <div key={i} style={{ background:i===0?C.black:C.green, padding:28 }}>
-            <Tag>PERSONA 0{i+1}</Tag>
-            <h3 style={{ fontFamily:"'DM Serif Display',serif", fontSize:24, color:C.cream,
-              margin:"14px 0 4px", fontWeight:400 }}>{p.name}</h3>
-            <p style={{ fontFamily:"'Barlow Condensed',sans-serif", fontSize:12,
-              color:C.sandDark, margin:"0 0 20px" }}>{p.age} · {p.occupation}</p>
-            {[["PERSONALITY",p.personality],["PAIN POINTS",p.pain_points],["GOALS",p.goals]].map(([k,v]) => (
-              <div key={k} style={{ marginBottom:14 }}>
-                <FieldLabel>{k}</FieldLabel>
-                <p style={{ fontFamily:"Georgia,serif", fontSize:13, lineHeight:1.65, color:C.sandLight, margin:0 }}>{v}</p>
+      </div>
+    </div>
+  ),
+  values: ({d})=>{
+    const bgs=[C.black,C.green,C.brown,C.black,C.green,C.brown];
+    return <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:3}}>{(d.values||[]).map((v,i)=>(
+      <div key={i} style={{background:bgs[i%6],padding:"24px 20px"}}>
+        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:11,color:C.sand,opacity:0.4,marginBottom:10}}>0{i+1}</div>
+        <H>{v.name}</H>
+        <P size={12.5} color={C.sand}>{v.description}</P>
+      </div>
+    ))}</div>;
+  },
+  positioning: ({d})=>(
+    <div style={{display:"flex",flexDirection:"column",gap:3}}>
+      <div style={{background:C.brown,padding:"28px 32px"}}><FL>POSITIONING STATEMENT</FL><p style={{fontFamily:"'DM Serif Display',serif",fontSize:20,fontStyle:"italic",color:C.cream,lineHeight:1.6}}>{d.positioning_statement}</p></div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:3}}>
+        {[["DIFFERENTIATION",d.differentiation,C.black],["BRAND PROMISE",d.brand_promise,C.green],["VALUE PROPOSITION",d.value_proposition,C.black]].map(([l,v,bg])=>(
+          <div key={l} style={{background:bg,padding:24}}><FL>{l}</FL><P>{v}</P></div>
+        ))}
+        <div style={{background:C.green,padding:24}}>
+          <FL>PERCEPTION SHIFT</FL>
+          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:11,color:"#f5a0a0",letterSpacing:"0.12em",marginBottom:8}}>FROM</div>
+          <P color={C.sandL} size={13}>{d.from_perception}</P>
+          <div style={{width:20,height:1,background:C.sand,margin:"12px 0"}}/>
+          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:11,color:"#a0f5b0",letterSpacing:"0.12em",marginBottom:8}}>TO</div>
+          <P color={C.sandL} size={13}>{d.to_perception}</P>
+        </div>
+      </div>
+    </div>
+  ),
+  competitors: ({d})=>{
+    const CompTable=({title,items,color})=>(
+      <div style={{marginBottom:3}}>
+        <div style={{padding:"10px 18px",background:color,fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:10,letterSpacing:"0.2em",color:C.black}}>{title}</div>
+        <div style={{background:C.black,overflow:"hidden",border:"1px solid rgba(255,255,255,0.05)"}}>
+          <div style={{display:"grid",gridTemplateColumns:"1.2fr 1.2fr 1fr 1fr 1.4fr",background:"rgba(255,255,255,0.05)"}}>
+            {["NAME","COUNTRY","STRENGTH","WEAKNESS","OPP FOR US"].map(h=><div key={h} style={{padding:"10px 14px",fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:9,letterSpacing:"0.15em",color:C.sand,opacity:0.6}}>{h}</div>)}
+          </div>
+          {(items||[]).map((c,i)=>(
+            <div key={i} style={{display:"grid",gridTemplateColumns:"1.2fr 1.2fr 1fr 1fr 1.4fr",borderTop:"1px solid rgba(255,255,255,0.06)",background:i%2?"rgba(255,255,255,0.02)":"transparent"}}>
+              <div style={{padding:14,fontFamily:"'DM Serif Display',serif",fontSize:14,color:C.cream}}>{c.name}</div>
+              <div style={{padding:14,fontFamily:"'Barlow Condensed',sans-serif",fontSize:10,color:C.sandD,letterSpacing:"0.08em"}}>{c.country}</div>
+              <div style={{padding:14,fontFamily:"Georgia,serif",fontSize:12,color:C.sand,lineHeight:1.5}}>{c.strength}</div>
+              <div style={{padding:14,fontFamily:"Georgia,serif",fontSize:12,color:C.sand,lineHeight:1.5}}>{c.weakness}</div>
+              <div style={{padding:14,fontFamily:"Georgia,serif",fontSize:12,color:C.sandL,fontStyle:"italic",lineHeight:1.5}}>{c.opportunity}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+    return <div><CompTable title="GLOBAL COMPETITORS" items={d.global} color={C.brown}/><CompTable title="LOCAL / REGIONAL COMPETITORS" items={d.local} color={C.green}/></div>;
+  },
+  market: ({d})=>(
+    <div style={{display:"flex",flexDirection:"column",gap:3}}>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:3}}>
+        <div style={{background:C.black,padding:24}}>
+          <FL>MARKET GAPS</FL>
+          {(d.gaps||[]).map((g,i)=><div key={i} style={{display:"flex",gap:10,marginBottom:12}}><span style={{color:C.brown,fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:14,marginTop:2}}>—</span><P color={C.sandL}>{g}</P></div>)}
+        </div>
+        <div style={{background:C.green,padding:24}}>
+          <FL>OPPORTUNITY SPACES</FL>
+          {(d.opportunities||[]).map((o,i)=><div key={i} style={{display:"flex",gap:10,marginBottom:12}}><span style={{color:C.sand,fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:14,marginTop:2}}>✦</span><P color={C.sandL}>{o}</P></div>)}
+        </div>
+      </div>
+      <div style={{background:C.brown,padding:24}}><FL>OUR ADVANTAGE</FL><p style={{fontFamily:"'DM Serif Display',serif",fontSize:18,fontStyle:"italic",color:C.cream}}>{d.our_advantage}</p></div>
+      <div style={{background:"rgba(255,255,255,0.03)",padding:20,borderLeft:`2px solid ${C.sand}`}}><FL>KEY INSIGHT</FL><P>{d.key_insight}</P></div>
+    </div>
+  ),
+  icp: ({d})=>(
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:3}}>
+      <div style={{background:C.black,padding:28}}>
+        <FL>PROFILE</FL>
+        <p style={{fontFamily:"'DM Serif Display',serif",fontSize:22,color:C.cream,fontStyle:"italic",lineHeight:1.5,marginBottom:20}}>{d.profile_statement}</p>
+        <div style={{width:32,height:1,background:C.brown,marginBottom:20}}/>
+        <P color={C.sand}>{d.description}</P>
+      </div>
+      <div style={{background:C.green,padding:28}}>
+        <FL>DEMOGRAPHICS</FL>
+        {[["Age Range",d.age_range],["Gender",d.gender],["Location",d.location],["Income Level",d.income_level],["Occupation",d.occupation],["Education",d.education]].map(([k,v])=>(
+          <div key={k} style={{marginBottom:12}}>
+            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,color:C.sandD,letterSpacing:"0.15em",marginBottom:3}}>{k.toUpperCase()}</div>
+            <P color={C.sandL} size={13}>{v}</P>
+          </div>
+        ))}
+      </div>
+    </div>
+  ),
+  psychographics: ({d})=>(
+    <div style={{display:"flex",flexDirection:"column",gap:3}}>
+      <div style={{background:C.black,padding:24}}><FL>MINDSET</FL><P size={15} color={C.cream} style={{fontStyle:"italic"}}>{d.mindset}</P></div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:3}}>
+        <div style={{background:C.green,padding:20}}>
+          <FL>CORE VALUES</FL>
+          {(d.core_values||[]).map((v,i)=><Pill key={i} bg="rgba(255,255,255,0.08)" fg={C.sandL}>{v}</Pill>)}
+        </div>
+        <div style={{background:C.black,padding:20}}>
+          <FL>MOTIVATIONS</FL>
+          {(d.motivations||[]).map((m,i)=><div key={i} style={{display:"flex",gap:8,marginBottom:10}}><span style={{color:C.brown}}>→</span><P color={C.sandL} size={13}>{m}</P></div>)}
+        </div>
+        <div style={{background:C.brown,padding:20}}>
+          <FL>BEHAVIORAL TRAITS</FL>
+          {(d.behavioral_traits||[]).map((t,i)=><div key={i} style={{display:"flex",gap:8,marginBottom:10}}><span style={{color:C.sand}}>·</span><P color={C.sandL} size={13}>{t}</P></div>)}
+        </div>
+      </div>
+      <div style={{background:"rgba(255,255,255,0.03)",padding:20,borderLeft:`3px solid ${C.brown}`}}>
+        <FL>CLIENT QUOTE</FL>
+        <p style={{fontFamily:"'DM Serif Display',serif",fontSize:16,fontStyle:"italic",color:C.sand}}>"{d.client_quote}"</p>
+      </div>
+    </div>
+  ),
+  painpoints: ({d})=>(
+    <div style={{display:"flex",flexDirection:"column",gap:3}}>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:3}}>
+        <div style={{background:C.green,padding:24}}>
+          <FL>ASPIRATIONS</FL>
+          {(d.aspirations||[]).map((a,i)=><div key={i} style={{display:"flex",gap:10,marginBottom:10}}><span style={{color:C.sand,fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700}}>0{i+1}</span><P color={C.sandL} size={13}>{a}</P></div>)}
+        </div>
+        <div style={{background:C.black,padding:24}}>
+          <FL>PAIN POINTS WE SOLVE</FL>
+          {(d.pain_points||[]).map((p,i)=><div key={i} style={{display:"flex",gap:10,marginBottom:10}}><span style={{color:"#f5a0a0",fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700}}>—</span><P color={C.sandL} size={13}>{p}</P></div>)}
+        </div>
+      </div>
+      <div style={{background:C.brown,padding:24,display:"grid",gridTemplateColumns:"1fr 1fr",gap:24}}>
+        <div><FL>WHAT THEY SEEK</FL><P color={C.cream}>{d.what_they_seek}</P></div>
+        <div><FL>WHY THEY CHOOSE US</FL><P color={C.cream}>{d.why_they_choose_us}</P></div>
+      </div>
+    </div>
+  ),
+  personality: ({d})=>(
+    <div style={{display:"flex",flexDirection:"column",gap:3}}>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:3}}>
+        <div style={{background:C.brown,padding:28}}>
+          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,color:"rgba(255,255,255,0.4)",letterSpacing:"0.2em",marginBottom:8}}>ARCHETYPE</div>
+          <H size={32} color={C.cream}>{d.archetype}</H>
+          <P color={C.sandL} size={14}>{d.description}</P>
+        </div>
+        <div style={{background:C.black,padding:28}}>
+          <FL>PERSONALITY KEYWORDS</FL>
+          <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:20}}>
+            {(d.keywords||[]).map(k=><Pill key={k} bg="rgba(123,92,66,0.3)" fg={C.sand}>{k.toUpperCase()}</Pill>)}
+          </div>
+          <FL>FEELS LIKE</FL>
+          <P color={C.sandL} style={{fontStyle:"italic"}} size={14}>{d.feels_like}</P>
+          <div style={{width:24,height:1,background:"rgba(255,255,255,0.1)",margin:"16px 0"}}/>
+          <FL>NOT THIS</FL>
+          <P color="rgba(245,160,160,0.7)" size={13}>{d.not_this}</P>
+        </div>
+      </div>
+    </div>
+  ),
+  voice: ({d})=>(
+    <div style={{display:"flex",flexDirection:"column",gap:3}}>
+      <div style={{background:C.black,padding:20,borderBottom:"1px solid rgba(255,255,255,0.06)"}}>
+        <FL>VOICE CHARACTERISTICS</FL>
+        <div style={{display:"flex",flexWrap:"wrap",gap:3}}>
+          {(d.characteristics||[]).map((c,i)=>(
+            <div key={i} style={{background:i%2===0?C.green:C.brown,padding:"14px 18px",flex:"1 1 180px"}}>
+              <div style={{fontFamily:"'DM Serif Display',serif",fontSize:14,color:C.cream,marginBottom:4}}>{c.trait}</div>
+              <P size={12} color={C.sandL}>{c.description}</P>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{background:"rgba(255,255,255,0.02)",padding:20}}>
+        <FL>MESSAGING PILLARS</FL>
+        <div style={{display:"flex",flexDirection:"column",gap:3}}>
+          {(d.messaging_pillars||[]).map((m,i)=>(
+            <div key={i} style={{display:"flex",gap:0,background:C.black}}>
+              <div style={{width:4,background:[C.brown,C.green,C.brown,C.green,C.brown][i%5]}}/>
+              <div style={{padding:"14px 18px",flex:1}}>
+                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:10,color:C.sand,letterSpacing:"0.15em",marginBottom:6}}>{m.theme}</div>
+                <P size={13.5} color={C.sandL} style={{fontStyle:"italic"}}>"{m.message}"</P>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  ),
+  tone: ({d})=>{
+    const contexts=[["ON SOCIAL MEDIA",d.social_media],["WITH CLIENTS",d.with_clients],["IN MARKETING",d.marketing],["BRAND FILMS",d.brand_films]];
+    return <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:3}}>{contexts.map(([l,v],i)=>(
+      <div key={l} style={{background:[C.black,C.green,C.black,C.green][i],padding:24}}>
+        <FL>{l}</FL>
+        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:11,color:C.sand,letterSpacing:"0.12em",marginBottom:10}}>{v?.tone}</div>
+        <div style={{width:20,height:1,background:"rgba(255,255,255,0.1)",marginBottom:12}}/>
+        <P size={13} color={C.sandL} style={{fontStyle:"italic"}}>"{v?.example}"</P>
+      </div>
+    ))}</div>;
+  },
+  visual: ({d})=>(
+    <div style={{display:"flex",flexDirection:"column",gap:3}}>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:3}}>
+        <div style={{background:C.black,padding:24}}><FL>LOGO DIRECTION</FL><P>{d.logo_direction}</P></div>
+        <div style={{background:C.green,padding:24}}>
+          <FL>COLOR PALETTE</FL>
+          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:11,color:C.sand,letterSpacing:"0.1em",marginBottom:4}}>PRIMARY</div>
+          <P size={13} color={C.sandL}>{d.primary_colors}</P>
+          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:11,color:C.sand,letterSpacing:"0.1em",marginTop:10,marginBottom:4}}>SECONDARY</div>
+          <P size={13} color={C.sandL}>{d.secondary_colors}</P>
+          <div style={{width:24,height:1,background:"rgba(255,255,255,0.1)",margin:"12px 0"}}/>
+          <P size={12} color={C.sandD} style={{fontStyle:"italic"}}>{d.color_meaning}</P>
+        </div>
+        <div style={{background:C.brown,padding:24}}><FL>TYPOGRAPHY</FL><P>{d.typography}</P></div>
+        <div style={{background:C.black,padding:24}}><FL>IMAGERY STYLE</FL><P>{d.imagery_style}</P></div>
+      </div>
+    </div>
+  ),
+  experience: ({d})=>{
+    const stages=[["DISCOVERY",d.discovery],["CONSULTATION",d.consultation],["PRODUCTION",d.production],["DELIVERY",d.delivery],["AFTER-EXPERIENCE",d.after_experience]];
+    const bgs=[C.black,C.green,C.brown,C.black,C.green];
+    return <div style={{display:"flex",flexDirection:"column",gap:3}}>{stages.map(([l,v],i)=>(
+      <div key={l} style={{background:bgs[i],padding:"20px 24px",display:"flex",gap:16,alignItems:"flex-start"}}>
+        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:900,fontSize:24,color:"rgba(255,255,255,0.08)",minWidth:36}}>0{i+1}</div>
+        <div style={{flex:1}}><FL>{l}</FL><P>{v}</P></div>
+      </div>
+    ))}</div>;
+  },
+  reputation: ({d})=>(
+    <div style={{display:"flex",flexDirection:"column",gap:3}}>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:3}}>
+        <div style={{background:C.black,padding:24}}><FL>CURRENT POSITION</FL><P color={C.sand}>{d.current_position}</P></div>
+        <div style={{background:C.green,padding:24}}><FL>GOAL</FL><P>{d.goal}</P></div>
+      </div>
+      <div style={{background:C.brown,padding:24,display:"grid",gridTemplateColumns:"1fr 1fr",gap:24}}>
+        <div>
+          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:10,color:"rgba(255,255,255,0.4)",letterSpacing:"0.2em",marginBottom:6}}>PERCEPTION: FROM</div>
+          <P color={C.cream} size={14} style={{fontStyle:"italic"}}>{d.from_perception}</P>
+        </div>
+        <div>
+          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:10,color:"rgba(255,255,255,0.4)",letterSpacing:"0.2em",marginBottom:6}}>PERCEPTION: TO</div>
+          <P color={C.cream} size={14} style={{fontStyle:"italic"}}>{d.to_perception}</P>
+        </div>
+      </div>
+      <div style={{background:"rgba(255,255,255,0.03)",padding:20}}>
+        <FL>KEY ACTIONS</FL>
+        {(d.key_actions||[]).map((a,i)=><div key={i} style={{display:"flex",gap:10,marginBottom:10}}><span style={{color:C.brown,fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700}}>0{i+1}</span><P color={C.sandL}>{a}</P></div>)}
+      </div>
+    </div>
+  ),
+  content: ({d})=>(
+    <div style={{display:"flex",flexDirection:"column",gap:3}}>
+      <div style={{background:C.brown,padding:20}}>
+        <FL>CONTENT PILLARS</FL>
+        <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
+          {(d.pillars||[]).map((p,i)=><Pill key={i} bg="rgba(0,0,0,0.3)" fg={C.cream}>{p}</Pill>)}
+        </div>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:3}}>
+        {[["INSTAGRAM",d.instagram,C.black],["TIKTOK",d.tiktok,C.green],["YOUTUBE",d.youtube,C.black],["LINKEDIN",d.linkedin,C.green]].map(([p,v,bg])=>(
+          <div key={p} style={{background:bg,padding:20}}><FL>{p}</FL><P size={13}>{v}</P></div>
+        ))}
+      </div>
+      <div style={{background:"rgba(255,255,255,0.03)",padding:20}}>
+        <FL>CONTENT FORMATS</FL>
+        <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
+          {(d.formats||[]).map((f,i)=><Pill key={i} bg="rgba(123,92,66,0.2)" fg={C.sandL}>{f}</Pill>)}
+        </div>
+      </div>
+    </div>
+  ),
+  storytelling: ({d})=>(
+    <div style={{display:"flex",flexDirection:"column",gap:3}}>
+      <div style={{background:C.black,padding:20}}>
+        <FL>STORYTELLING PILLARS</FL>
+        <div style={{display:"flex",flexDirection:"column",gap:3}}>
+          {(d.pillars||[]).map((p,i)=>(
+            <div key={i} style={{background:i%2===0?C.green:C.brown,padding:"14px 18px",display:"flex",gap:12,alignItems:"flex-start"}}>
+              <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:900,fontSize:20,color:"rgba(255,255,255,0.15)",minWidth:28}}>0{i+1}</span>
+              <div><div style={{fontFamily:"'DM Serif Display',serif",fontSize:14,color:C.cream,marginBottom:4}}>{p.name}</div><P size={12.5} color={C.sandL}>{p.description}</P></div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{background:C.brown,padding:24}}><FL>CULTURAL DIFFERENTIATION</FL><P color={C.cream}>{d.cultural_differentiation}</P></div>
+      <div style={{background:"rgba(255,255,255,0.03)",padding:20}}>
+        <FL>CONTENT FORMATS</FL>
+        <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
+          {(d.content_formats||[]).map((f,i)=><Pill key={i} bg="rgba(45,74,62,0.4)" fg={C.sandL}>{f}</Pill>)}
+        </div>
+      </div>
+    </div>
+  ),
+  community: ({d})=>(
+    <div style={{display:"flex",flexDirection:"column",gap:3}}>
+      <div style={{background:C.brown,padding:28}}><FL>VISION</FL><p style={{fontFamily:"'DM Serif Display',serif",fontSize:20,fontStyle:"italic",color:C.cream}}>{d.vision}</p></div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:3}}>
+        <div style={{background:C.black,padding:24}}><FL>APPROACH</FL><P>{d.approach}</P></div>
+        <div style={{background:C.green,padding:24}}>
+          <FL>INITIATIVES</FL>
+          {(d.initiatives||[]).map((it,i)=><div key={i} style={{display:"flex",gap:8,marginBottom:10}}><span style={{color:C.sand}}>✦</span><P size={13} color={C.sandL}>{it}</P></div>)}
+        </div>
+      </div>
+      <div style={{background:"rgba(255,255,255,0.03)",padding:20,display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
+        <div><FL>COMMUNITY STATEMENT</FL><P color={C.sand} style={{fontStyle:"italic"}}>{d.community_statement}</P></div>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+          {(d.channels||[]).map((ch,i)=><Pill key={i} bg={C.brown} fg={C.cream}>{ch}</Pill>)}
+        </div>
+      </div>
+    </div>
+  ),
+  roadmap: ({d})=>(
+    <div style={{display:"flex",flexDirection:"column",gap:3}}>
+      {[["ELEVATE THE BRAND",d.elevate,C.black,"#E05C9A"],["EXPAND INFLUENCE",d.expand_influence,C.green,C.sand],["GLOBAL PRESENCE",d.global_presence,C.brown,C.cream]].map(([title,items,bg,ac])=>(
+        <div key={title} style={{background:bg,padding:24}}>
+          <FL color={ac}>{title}</FL>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))",gap:8}}>
+            {(items||[]).map((item,i)=>(
+              <div key={i} style={{display:"flex",gap:8,alignItems:"flex-start"}}>
+                <span style={{color:ac,fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:12,marginTop:2}}>→</span>
+                <P size={12.5} color={C.sandL}>{item}</P>
               </div>
             ))}
-            <div style={{ marginTop:16, borderTop:"1px solid rgba(255,255,255,0.1)", paddingTop:14,
-              fontFamily:"'DM Serif Display',serif", fontSize:14, fontStyle:"italic", color:C.sand }}>
-              "{p.quote}"
-            </div>
           </div>
-        ))}
-      </div>
-    );
-
-    const ProblemsOut = ({ d }) => (
-      <div style={{ display:"flex", flexDirection:"column", gap:3 }}>
-        {(d.items||[]).map((item,i) => (
-          <div key={i} style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:3 }}>
-            <div style={{ background:C.black, padding:"24px 28px" }}>
-              <Tag bg="#3d1a1a" fg="#f5aaaa">PROBLEM</Tag>
-              <p style={{ fontFamily:"Georgia,serif", fontSize:14, lineHeight:1.75, color:C.cream, margin:"12px 0 0" }}>{item.problem}</p>
+        </div>
+      ))}
+      <div style={{background:"rgba(255,255,255,0.03)",padding:24}}>
+        <FL>GLOBAL PLAYBOOK PRINCIPLES</FL>
+        <div style={{display:"flex",flexDirection:"column",gap:6}}>
+          {(d.playbook||[]).map((p,i)=>(
+            <div key={i} style={{display:"flex",gap:10,alignItems:"flex-start"}}>
+              <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:12,color:C.brown,minWidth:20}}>0{i+1}</span>
+              <P color={C.sandL}>{p}</P>
             </div>
-            <div style={{ background:C.green, padding:"24px 28px" }}>
-              <Tag bg={C.sand} fg={C.black}>SOLUTION</Tag>
-              <p style={{ fontFamily:"Georgia,serif", fontSize:14, lineHeight:1.75, color:C.cream, margin:"12px 0 0" }}>{item.solution}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-
-    const CompetitorsOut = ({ d }) => (
-      <div style={{ background:C.black, overflow:"hidden", border:"1px solid rgba(255,255,255,0.06)" }}>
-        <div style={{ display:"grid", gridTemplateColumns:"1.4fr 1fr 1fr 1.4fr", background:C.brown }}>
-          {["COMPETITOR","STRENGTH","WEAKNESS","OUR OPPORTUNITY"].map(h => (
-            <div key={h} style={{ padding:"12px 18px", fontFamily:"'Barlow Condensed',sans-serif",
-              fontWeight:700, fontSize:10, letterSpacing:"0.18em", color:C.black }}>{h}</div>
           ))}
         </div>
-        {(d.competitors||[]).map((c,i) => (
-          <div key={i} style={{ display:"grid", gridTemplateColumns:"1.4fr 1fr 1fr 1.4fr",
-            borderTop:"1px solid rgba(255,255,255,0.07)",
-            background:i%2?"rgba(255,255,255,0.025)":"transparent" }}>
-            <div style={{ padding:18, fontFamily:"'DM Serif Display',serif", fontSize:15, color:C.cream }}>{c.name}</div>
-            <div style={{ padding:18, fontFamily:"Georgia,serif", fontSize:12.5, color:C.sand, lineHeight:1.65 }}>{c.strength}</div>
-            <div style={{ padding:18, fontFamily:"Georgia,serif", fontSize:12.5, color:C.sand, lineHeight:1.65 }}>{c.weakness}</div>
-            <div style={{ padding:18, fontFamily:"Georgia,serif", fontSize:12.5, color:C.sandLight, fontStyle:"italic", lineHeight:1.65 }}>{c.opportunity}</div>
-          </div>
-        ))}
       </div>
-    );
+    </div>
+  ),
+};
 
-    const VoiceOut = ({ d }) => (
-      <div style={{ display:"flex", flexDirection:"column", gap:3 }}>
-        {(d.traits||[]).map((t,i) => (
-          <div key={i} style={{ background:[C.black,C.green,C.brown][i%3], overflow:"hidden" }}>
-            <div style={{ padding:"20px 26px", borderBottom:"1px solid rgba(255,255,255,0.08)",
-              display:"flex", alignItems:"baseline", gap:12, flexWrap:"wrap" }}>
-              <span style={{ fontFamily:"'DM Serif Display',serif", fontSize:20, color:C.cream }}>{t.name}</span>
-              <span style={{ fontFamily:"Georgia,serif", fontSize:13, fontStyle:"italic", color:C.sand }}>— {t.description}</span>
-            </div>
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr" }}>
-              <div style={{ padding:"18px 26px", borderRight:"1px solid rgba(255,255,255,0.07)" }}>
-                <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontSize:9, fontWeight:700,
-                  color:"#7dbe7d", letterSpacing:"0.2em", marginBottom:8 }}>✓ DO</div>
-                <p style={{ fontFamily:"Georgia,serif", fontSize:13.5, lineHeight:1.75, color:C.sandLight, margin:0 }}>{t.do}</p>
-              </div>
-              <div style={{ padding:"18px 26px" }}>
-                <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontSize:9, fontWeight:700,
-                  color:"#c07070", letterSpacing:"0.2em", marginBottom:8 }}>✕ DON'T</div>
-                <p style={{ fontFamily:"Georgia,serif", fontSize:13.5, lineHeight:1.75, color:C.sandLight, margin:0 }}>{t.dont}</p>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    );
+// ── VIBIZ TOOLS ───────────────────────────────────
 
-    const CreativeOut = ({ d }) => (
-      <div style={{ display:"flex", flexDirection:"column", gap:3 }}>
-        <div style={{ background:C.brown, padding:"32px 28px" }}>
-          <FieldLabel>CREATIVE OVERVIEW</FieldLabel>
-          <p style={{ fontFamily:"'DM Serif Display',serif", fontSize:22, fontStyle:"italic",
-            lineHeight:1.55, color:C.cream, margin:0 }}>{d.overview}</p>
+function BrandDNATool({name, ctx}) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState("");
+  const generate = async () => {
+    if (!name || !ctx) { setErr("Set brand name and context first"); return; }
+    setErr(""); setLoading(true);
+    try {
+      const shape = `{"dna_statement":"","essence":"","personality_word":"","emotional_promise":"","cultural_truth":"","north_star":"","in_one_breath":""}`;
+      const prompt = `You are a brand strategist. Brand: "${name}". Context: ${ctx}\n\nDistil this brand down to its absolute DNA — the irreducible essence. Be specific and powerful, not generic.\n\nReturn ONLY this JSON:\n${shape}`;
+      const r = await callTool(prompt);
+      setData(r);
+    } catch(e) { setErr(e.message); }
+    setLoading(false);
+  };
+  return (
+    <div style={{padding:"28px 32px",height:"calc(100vh - 65px)",overflow:"auto"}}>
+      <div style={{maxWidth:900,margin:"0 auto"}}>
+        <div style={{marginBottom:32}}>
+          <h2 style={{fontFamily:"'DM Serif Display',serif",fontSize:36,color:C.cream,marginTop:12,marginBottom:8}}>Brand DNA Generator</h2>
+          <P color={C.muted}>Distil any brand down to its irreducible essence — the single truth that everything else is built on.</P>
         </div>
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:3 }}>
-          {[["TYPOGRAPHY",d.typography,C.black],["COLOUR PALETTE",d.colors,C.green],["IMAGERY STYLE",d.imagery,C.black]].map(([l,v,bg]) => (
-            <div key={l} style={{ background:bg, padding:"24px 20px" }}>
-              <FieldLabel>{l}</FieldLabel>
-              <p style={{ fontFamily:"Georgia,serif", fontSize:13.5, lineHeight:1.75, color:C.sandLight, margin:0 }}>{v}</p>
+        <div style={{marginBottom:20,display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}>
+          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:11,color:C.sandD,padding:"8px 16px",background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)"}}>
+            Brand: <span style={{color:C.sand}}>{name||"—"}</span>
+          </div>
+          <BtnPrimary onClick={generate} disabled={loading}>{loading?"GENERATING DNA…":"✦ GENERATE BRAND DNA"}</BtnPrimary>
+        </div>
+        <Err msg={err}/>
+        {loading && <Spinner label="Brand DNA"/>}
+        {!loading && !data && <Empty msg="Click Generate Brand DNA above"/>}
+        {!loading && data && (
+          <div style={{display:"flex",flexDirection:"column",gap:3,animation:"fadeUp 0.4s ease"}}>
+            <div style={{background:"linear-gradient(135deg,#4A1942,#7B5C42)",padding:"40px 36px",textAlign:"center"}}>
+              <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,color:"rgba(255,255,255,0.4)",letterSpacing:"0.3em",marginBottom:16}}>BRAND DNA STATEMENT</div>
+              <p style={{fontFamily:"'DM Serif Display',serif",fontSize:24,fontStyle:"italic",color:C.cream,lineHeight:1.65,maxWidth:680,margin:"0 auto"}}>{data.dna_statement}</p>
             </div>
-          ))}
-          <div style={{ background:C.black, padding:"24px 20px" }}>
-            <FieldLabel>MOOD KEYWORDS</FieldLabel>
-            <div style={{ display:"flex", flexWrap:"wrap", gap:8, marginTop:4 }}>
-              {(d.keywords||[]).map(k => (
-                <span key={k} style={{ background:C.brown, color:C.cream, padding:"5px 14px",
-                  fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:12, letterSpacing:"0.1em" }}>
-                  {k.toUpperCase()}
-                </span>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:3}}>
+              {[["ESSENCE",data.essence,C.black],["ONE WORD",data.personality_word,C.green],["EMOTIONAL PROMISE",data.emotional_promise,C.black],["CULTURAL TRUTH",data.cultural_truth,C.brown],["NORTH STAR",data.north_star,C.black],["IN ONE BREATH",data.in_one_breath,C.green]].map(([l,v,bg])=>(
+                <div key={l} style={{background:bg,padding:22}}><FL>{l}</FL><P color={l==="ONE WORD"?C.cream:C.sandL} size={l==="ONE WORD"?22:13} style={l==="ONE WORD"?{fontFamily:"'DM Serif Display',serif",fontStyle:"italic"}:{}}>{v}</P></div>
               ))}
             </div>
           </div>
-        </div>
+        )}
       </div>
-    );
+    </div>
+  );
+}
 
-    function renderSection(id, data) {
-      if (!data) return null;
-      const map = { mission:MissionOut, values:ValuesOut, audience:PersonasOut,
-        problems:ProblemsOut, competitors:CompetitorsOut, voice:VoiceOut, creative:CreativeOut };
-      const Comp = map[id];
-      return Comp ? <Comp d={data} /> : null;
-    }
-
-    /* ── CASE STUDIES DATA ───────────────────────────────────────────────── */
-    const CASES = [
-      {
-        name:"Sundae Kind of Love", type:"Romance Bookshop", color:"#E05C9A",
-        lesson:"Turned genre stigma into brand fuel by making readers feel proud.",
-        mission:"To melt the stigma around romance and make book buying feel like a sweet treat.",
-        vision:"A community of romance lovers who feel proud of what they read.",
-        values:["Romanticise the Mundane","Community First","All Flavours Welcome","Joy for Joy's Sake","No Shame in the Spice","Served with Kindness"],
-        voice:["Sweet & Cheeky","Warm & Human","Humorous"],
-        insight:"Their brand gives emotional permission. What permission does your brand give?",
-      },
-      {
-        name:"Pure Petals Skin Care", type:"Organic Skincare", color:"#8B2252",
-        lesson:"Every touchpoint reinforces the same calm earthy world without exception.",
-        mission:"Gentle care for naturally beautiful skin — earth-grown, 100% raw and organic.",
-        vision:"Products that integrate seamlessly into daily life. Nothing excessive.",
-        values:["Purity First","Earth-Grown","Ethically Sourced","Calm & Approachable","Science + Care","Minimalism"],
-        voice:["Soft & Reassuring","Educational","Clean Elegance"],
-        insight:"They built recognition through restraint. Coherence at every touchpoint is a luxury brand's real advantage.",
-      },
-    ];
-
-    /* ════════════════════════════════════════════════════════════════════════
-       PASSWORD GATE
-    ════════════════════════════════════════════════════════════════════════ */
-    function PasswordGate({ onUnlock }) {
-      const [pw, setPw]       = useState("");
-      const [err, setErr]     = useState(false);
-      const [shake, setShake] = useState(false);
-      const inputRef          = useRef(null);
-
-      useEffect(() => { inputRef.current && inputRef.current.focus(); }, []);
-
-      const attempt = () => {
-        if (pw === PASSWORD) {
-          onUnlock();
-        } else {
-          setErr(true);
-          setShake(true);
-          setPw("");
-          setTimeout(() => setShake(false), 500);
-        }
-      };
-
-      return (
-        <div style={{
-          minHeight:"100vh", background:C.black,
-          display:"flex", alignItems:"center", justifyContent:"center",
-          padding:24, animation:"fadeIn 0.6s ease",
-        }}>
-          {/* Subtle grain texture */}
-          <div style={{
-            position:"fixed", inset:0, pointerEvents:"none", zIndex:0,
-            backgroundImage:"radial-gradient(ellipse at 30% 20%, rgba(123,92,66,0.06) 0%, transparent 60%), radial-gradient(ellipse at 70% 80%, rgba(45,74,62,0.05) 0%, transparent 60%)",
-          }}/>
-
-          <div style={{ position:"relative", zIndex:1, width:"100%", maxWidth:400, textAlign:"center" }}>
-
-            {/* Logo mark */}
-            <div style={{ marginBottom:48 }}>
-              <div style={{
-                display:"inline-flex", flexDirection:"column", alignItems:"center", gap:0,
-              }}>
-                <div style={{
-                  fontFamily:"'Barlow Condensed',sans-serif", fontWeight:400, fontSize:10,
-                  color:C.sandDark, letterSpacing:"0.55em", marginBottom:6,
-                }}>THE</div>
-                <div style={{
-                  fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:72,
-                  color:C.cream, letterSpacing:"-0.02em", lineHeight:0.9,
-                }}>MUSED</div>
-                <div style={{
-                  fontFamily:"'Barlow Condensed',sans-serif", fontWeight:400, fontSize:10,
-                  color:C.sandDark, letterSpacing:"0.55em", marginTop:8,
-                }}>STUDIO</div>
-              </div>
-
-              {/* Ornamental line */}
-              <div style={{ display:"flex", alignItems:"center", gap:16, margin:"28px auto 0", maxWidth:200 }}>
-                <div style={{ flex:1, height:"1px", background:`linear-gradient(to right, transparent, ${C.brown})` }}/>
-                <div style={{ width:4, height:4, background:C.brown, transform:"rotate(45deg)" }}/>
-                <div style={{ flex:1, height:"1px", background:`linear-gradient(to left, transparent, ${C.brown})` }}/>
-              </div>
-
-              <p style={{
-                fontFamily:"'DM Serif Display',serif", fontSize:13, fontStyle:"italic",
-                color:C.muted, marginTop:16, letterSpacing:"0.02em",
-              }}>Brand Strategy Platform</p>
-            </div>
-
-            {/* Input card */}
-            <div style={{
-              background:"rgba(255,255,255,0.025)",
-              border:`1px solid ${err ? "rgba(200,100,100,0.3)" : "rgba(255,255,255,0.06)"}`,
-              padding:"32px 28px",
-              transition:"border-color 0.3s",
-              animation: shake ? "shakeX 0.4s ease" : "none",
-            }}>
-              <div style={{
-                fontFamily:"'Barlow Condensed',sans-serif", fontSize:9, fontWeight:700,
-                color:C.brown, letterSpacing:"0.28em", marginBottom:16,
-              }}>ACCESS REQUIRED</div>
-
-              <input
-                ref={inputRef}
-                type="password"
-                value={pw}
-                onChange={e => { setPw(e.target.value); setErr(false); }}
-                onKeyDown={e => e.key === "Enter" && attempt()}
-                placeholder="Enter password"
-                style={{
-                  width:"100%", padding:"13px 16px",
-                  background:"rgba(255,255,255,0.04)",
-                  border:`1px solid ${err ? "rgba(200,100,100,0.5)" : "rgba(255,255,255,0.1)"}`,
-                  color:C.cream, fontFamily:"'Barlow Condensed',sans-serif",
-                  fontSize:15, letterSpacing:"0.15em", textAlign:"center",
-                  marginBottom:err ? 8 : 16,
-                  transition:"border-color 0.3s",
-                }}
-              />
-
-              {err && (
-                <div style={{
-                  fontFamily:"'Barlow Condensed',sans-serif", fontSize:10,
-                  color:"#f5a0a0", letterSpacing:"0.12em", marginBottom:14,
-                }}>
-                  Incorrect password. Try again.
-                </div>
-              )}
-
-              <button
-                onClick={attempt}
-                style={{
-                  width:"100%", padding:"13px",
-                  background:C.brown, color:C.cream, border:"none",
-                  fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700,
-                  fontSize:11, letterSpacing:"0.24em",
-                  transition:"background 0.2s",
-                }}
-                onMouseEnter={e => e.target.style.background = C.brownDark}
-                onMouseLeave={e => e.target.style.background = C.brown}
-              >
-                ENTER →
-              </button>
-            </div>
-
-            <p style={{
-              fontFamily:"'Barlow Condensed',sans-serif", fontSize:9,
-              color:"rgba(255,255,255,0.1)", letterSpacing:"0.2em", marginTop:24,
-            }}>
-              THE MUSED STUDIO · BRAND STRATEGY
-            </p>
-          </div>
-
-          <style>{`
-            @keyframes shakeX {
-              0%,100%{transform:translateX(0)}
-              20%{transform:translateX(-8px)}
-              40%{transform:translateX(8px)}
-              60%{transform:translateX(-6px)}
-              80%{transform:translateX(6px)}
-            }
-          `}</style>
+function AdCampaignsTool({name, ctx}) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState("");
+  const [focus, setFocus] = useState("");
+  const generate = async () => {
+    if (!name || !ctx) { setErr("Set brand name and context first"); return; }
+    setErr(""); setLoading(true);
+    try {
+      const shape = `{"campaigns":[{"name":"","objective":"","platform":"","target_segment":"","headline":"","hook":"","body_copy":"","cta":"","visual_direction":"","kpi":""},{"name":"","objective":"","platform":"","target_segment":"","headline":"","hook":"","body_copy":"","cta":"","visual_direction":"","kpi":""},{"name":"","objective":"","platform":"","target_segment":"","headline":"","hook":"","body_copy":"","cta":"","visual_direction":"","kpi":""}]}`;
+      const focusPart = focus ? ` Campaign focus: ${focus}.` : "";
+      const prompt = `You are a senior marketing strategist and copywriter. Brand: "${name}". Context: ${ctx}.${focusPart}\n\nCreate 3 distinct, specific, actionable ad campaign concepts with real copy (not placeholder text). Each should have a different objective and platform.\n\nReturn ONLY this JSON:\n${shape}`;
+      const r = await callTool(prompt, 2000);
+      setData(r);
+    } catch(e) { setErr(e.message); }
+    setLoading(false);
+  };
+  const platformColors = {"Instagram":"#8B4A6B","TikTok":"#4A6B8B","LinkedIn":"#3D5A7A","YouTube":"#6B4A3D","Facebook":"#3D4A6B","Google":"#5A6B3D"};
+  const getPColor = p => Object.entries(platformColors).find(([k])=>p?.toLowerCase().includes(k.toLowerCase()))?.[1] || C.brown;
+  return (
+    <div style={{padding:"28px 32px",height:"calc(100vh - 65px)",overflow:"auto"}}>
+      <div style={{maxWidth:980,margin:"0 auto"}}>
+        <div style={{marginBottom:32}}>
+          <h2 style={{fontFamily:"'DM Serif Display',serif",fontSize:36,color:C.cream,marginTop:12,marginBottom:8}}>Ad Campaign Generator</h2>
+          <P color={C.muted}>Generate 3 complete campaign concepts with real copy, targeting, creative direction and KPIs.</P>
         </div>
-      );
-    }
-
-    /* ════════════════════════════════════════════════════════════════════════
-       MAIN APP
-    ════════════════════════════════════════════════════════════════════════ */
-    function Studio() {
-      const [tab,       setTab]       = useState("studio");
-      const [section,   setSection]   = useState("mission");
-      const [clientName,setCN]        = useState("");
-      const [clientCtx, setCC]        = useState("");
-      const [generated, setGenerated] = useState({});
-      const [spinning,  setSpinning]  = useState(null);
-      const [allBusy,   setAllBusy]   = useState(false);
-      const [err,       setErr]       = useState("");
-      const [caseOpen,  setCaseOpen]  = useState(null);
-
-      const isStudio   = tab === "studio";
-      const activeName = isStudio ? STUDIO_NAME : clientName;
-      const activeCtx  = isStudio ? STUDIO_CTX  : clientCtx;
-      const busy       = !!spinning || allBusy;
-      const activeSec  = SECTIONS.find(s => s.id === section);
-      const progress   = Object.keys(generated).length;
-
-      const switchTab = (t) => {
-        setTab(t); setGenerated({}); setErr("");
-        setCN(""); setCC(""); setSection("mission");
-      };
-
-      const genOne = async (sid) => {
-        if (!activeName.trim() || !activeCtx.trim()) {
-          setErr(isStudio ? "Context missing." : "Fill in client name and brief first.");
-          return;
-        }
-        setErr(""); setSpinning(sid);
-        try {
-          const r = await callAPI(sid, activeName.trim(), activeCtx.trim());
-          setGenerated(p => ({ ...p, [sid]: r }));
-        } catch(e) { setErr(e.message); }
-        setSpinning(null);
-      };
-
-      const genAll = async () => {
-        if (!activeName.trim() || !activeCtx.trim()) {
-          setErr(isStudio ? "Context missing." : "Fill in client name and brief first.");
-          return;
-        }
-        setErr(""); setAllBusy(true);
-        for (const s of SECTIONS) {
-          setSpinning(s.id);
-          try {
-            const r = await callAPI(s.id, activeName.trim(), activeCtx.trim());
-            setGenerated(p => ({ ...p, [s.id]: r }));
-          } catch(e) {
-            setErr(`Stopped at "${s.label}": ${e.message}`);
-            break;
-          }
-        }
-        setSpinning(null); setAllBusy(false);
-      };
-
-      const inp = {
-        width:"100%", padding:"11px 14px",
-        background:"rgba(255,255,255,0.05)",
-        border:"1px solid rgba(255,255,255,0.12)",
-        color:C.cream, fontFamily:"Georgia,serif", fontSize:14, lineHeight:1.6,
-      };
-
-      return (
-        <div style={{ minHeight:"100vh", background:C.black, color:C.cream, animation:"fadeIn 0.4s ease" }}>
-          <style>{`
-            @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=DM+Serif+Display:ital@0;1&display=swap');
-          `}</style>
-
-          {/* ── HEADER ── */}
-          <header style={{
-            display:"flex", alignItems:"center", justifyContent:"space-between",
-            padding:"0 36px", borderBottom:`1px solid rgba(255,255,255,0.07)`,
-            background:C.black, position:"sticky", top:0, zIndex:20,
-          }}>
-            <div style={{ display:"flex", alignItems:"center", gap:20, padding:"14px 0" }}>
-              <div style={{ display:"inline-flex", flexDirection:"column", alignItems:"center" }}>
-                <div style={{
-                  fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:26,
-                  color:C.cream, letterSpacing:"-0.02em", writingMode:"vertical-rl",
-                  transform:"rotate(180deg)", lineHeight:0.85,
-                }}>MUSED</div>
-                <div style={{
-                  display:"flex", gap:8, marginTop:3,
-                  fontFamily:"'Barlow Condensed',sans-serif", fontWeight:400,
-                  fontSize:5, color:C.cream, letterSpacing:"0.2em", opacity:0.5,
-                }}>
-                  <span>THE</span><span>STUDIO</span>
-                </div>
-              </div>
-              <div style={{ width:1, height:30, background:"rgba(255,255,255,0.1)" }} />
-              <div>
-                <div style={{
-                  fontFamily:"'Barlow Condensed',sans-serif", fontSize:9,
-                  fontWeight:700, letterSpacing:"0.24em", color:C.brown,
-                }}>BRAND STRATEGY PLATFORM</div>
-                <div style={{
-                  fontFamily:"'DM Serif Display',serif", fontSize:14,
-                  color:C.sand, fontStyle:"italic",
-                }}>Turn positioning into presence.</div>
-              </div>
-            </div>
-            <nav style={{ display:"flex" }}>
-              {[["studio","My Studio"],["client","Client Builder"],["casestudy","Case Studies"]].map(([id,lbl]) => (
-                <button key={id} onClick={() => switchTab(id)} style={{
-                  padding:"14px 20px",
-                  background: tab===id ? C.brown : "transparent",
-                  color: tab===id ? C.cream : C.muted,
-                  border:"none",
-                  fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700,
-                  fontSize:11, letterSpacing:"0.18em",
-                  transition:"background 0.2s, color 0.2s",
-                }}>{lbl.toUpperCase()}</button>
-              ))}
-            </nav>
-          </header>
-
-          {/* ── STUDIO / CLIENT ── */}
-          {(tab==="studio" || tab==="client") && (
-            <div style={{ display:"flex", height:"calc(100vh - 65px)" }}>
-
-              {/* Sidebar */}
-              <aside style={{
-                width:218, flexShrink:0,
-                borderRight:`1px solid rgba(255,255,255,0.07)`,
-                display:"flex", flexDirection:"column", overflowY:"auto",
-              }}>
-                <div style={{
-                  padding:"18px 18px 10px",
-                  fontFamily:"'Barlow Condensed',sans-serif",
-                  fontSize:9, fontWeight:700, color:C.muted, letterSpacing:"0.2em",
-                }}>SECTIONS</div>
-
-                {SECTIONS.map(s => {
-                  const active = section===s.id, done = !!generated[s.id], isSpin = spinning===s.id;
-                  return (
-                    <button key={s.id} onClick={() => setSection(s.id)} style={{
-                      display:"flex", alignItems:"center", gap:10, padding:"12px 18px",
-                      background: active ? "rgba(244,240,232,0.95)" : "transparent",
-                      color: active ? C.black : done ? C.sand : C.muted,
-                      border:"none", width:"100%", textAlign:"left",
-                      borderLeft: active ? `3px solid ${C.brown}` : "3px solid transparent",
-                      transition:"background 0.15s",
-                    }}>
-                      <span style={{
-                        fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:11,
-                        color: active ? C.brown : done ? C.sandDark : C.muted, minWidth:22,
-                      }}>{s.num}</span>
-                      <span style={{ fontFamily:"'DM Serif Display',serif", fontSize:13, flex:1 }}>{s.label}</span>
-                      {isSpin && <span style={{ display:"inline-block", animation:"spin 1s linear infinite", opacity:0.5 }}>◌</span>}
-                      {done && !isSpin && !active && <span style={{ color:C.brown, fontSize:11 }}>✓</span>}
-                    </button>
-                  );
-                })}
-
-                <div style={{ padding:"16px 18px 22px", marginTop:"auto" }}>
-                  <div style={{
-                    fontFamily:"'Barlow Condensed',sans-serif", fontSize:9,
-                    fontWeight:700, color:C.muted, letterSpacing:"0.18em", marginBottom:7,
-                  }}>{progress}/{SECTIONS.length} COMPLETE</div>
-                  <div style={{ height:2, background:"rgba(255,255,255,0.07)", borderRadius:1 }}>
-                    <div style={{
-                      height:"100%", width:`${(progress/SECTIONS.length)*100}%`,
-                      background:C.brown, transition:"width .5s", borderRadius:1,
-                    }}/>
+        <div style={{marginBottom:20,display:"flex",gap:10,flexWrap:"wrap",alignItems:"center"}}>
+          <input value={focus} onChange={e=>setFocus(e.target.value)} placeholder="Optional: Campaign focus (e.g. Brand awareness, Lead gen, Launch)" style={{...inp(),width:360}}/>
+          <BtnPrimary onClick={generate} disabled={loading}>{loading?"GENERATING…":"✦ GENERATE CAMPAIGNS"}</BtnPrimary>
+        </div>
+        <Err msg={err}/>
+        {loading && <Spinner label="Ad Campaigns"/>}
+        {!loading && !data && <Empty msg="Generate 3 complete campaign concepts"/>}
+        {!loading && data && (
+          <div style={{display:"flex",flexDirection:"column",gap:16,animation:"fadeUp 0.4s ease"}}>
+            {(data.campaigns||[]).map((c,i)=>(
+              <div key={i} style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.06)"}}>
+                <div style={{padding:"18px 24px",background:getPColor(c.platform),display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
+                  <div>
+                    <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,color:"rgba(255,255,255,0.55)",letterSpacing:"0.2em",marginBottom:4}}>CAMPAIGN {i+1}</div>
+                    <div style={{fontFamily:"'DM Serif Display',serif",fontSize:20,color:C.cream}}>{c.name}</div>
+                  </div>
+                  <div style={{display:"flex",gap:8}}>
+                    <Pill bg="rgba(0,0,0,0.3)" fg={C.cream}>{c.platform}</Pill>
+                    <Pill bg="rgba(0,0,0,0.2)" fg={C.sandL}>{c.objective}</Pill>
                   </div>
                 </div>
-              </aside>
-
-              {/* Main */}
-              <main style={{ flex:1, overflow:"auto", display:"flex", flexDirection:"column" }}>
-
-                {/* Controls */}
-                <div style={{
-                  padding:"20px 28px",
-                  borderBottom:`1px solid rgba(255,255,255,0.07)`,
-                  background:"rgba(255,255,255,0.015)", flexShrink:0,
-                }}>
-                  {isStudio && (
-                    <div style={{
-                      marginBottom:16, padding:"14px 18px",
-                      background:"rgba(123,92,66,0.12)",
-                      borderLeft:`2px solid ${C.brown}`,
-                    }}>
-                      <div style={{
-                        fontFamily:"'Barlow Condensed',sans-serif", fontSize:9,
-                        fontWeight:700, color:C.brown, letterSpacing:"0.2em", marginBottom:5,
-                      }}>GENERATING FOR</div>
-                      <div style={{
-                        fontFamily:"'DM Serif Display',serif", fontSize:17,
-                        color:C.cream, marginBottom:5,
-                      }}>The Mused Studio</div>
-                      <p style={{
-                        fontFamily:"Georgia,serif", fontSize:12.5,
-                        color:C.sand, lineHeight:1.65, margin:0,
-                      }}>{STUDIO_CTX}</p>
-                    </div>
-                  )}
-
-                  {!isStudio && (
-                    <div style={{ marginBottom:16 }}>
-                      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14, marginBottom:14 }}>
-                        <div>
-                          <div style={{
-                            fontFamily:"'Barlow Condensed',sans-serif", fontSize:9,
-                            fontWeight:700, color:C.sandDark, letterSpacing:"0.2em", marginBottom:7,
-                          }}>CLIENT NAME</div>
-                          <input value={clientName} onChange={e => setCN(e.target.value)}
-                            placeholder="e.g. Bloom Atelier"
-                            style={{ ...inp, fontFamily:"'DM Serif Display',serif", fontSize:16 }}/>
-                        </div>
-                        <div>
-                          <div style={{
-                            fontFamily:"'Barlow Condensed',sans-serif", fontSize:9,
-                            fontWeight:700, color:C.sandDark, letterSpacing:"0.2em", marginBottom:7,
-                          }}>INDUSTRY</div>
-                          <input placeholder="e.g. Wellness, Fashion, Tech…" style={inp}/>
-                        </div>
-                      </div>
-                      <div>
-                        <div style={{ display:"flex", justifyContent:"space-between", marginBottom:7 }}>
-                          <div style={{
-                            fontFamily:"'Barlow Condensed',sans-serif", fontSize:9,
-                            fontWeight:700, color:C.sandDark, letterSpacing:"0.2em",
-                          }}>BRAND BRIEF</div>
-                          <div style={{
-                            fontFamily:"'Barlow Condensed',sans-serif", fontSize:9,
-                            color: clientCtx.length < 60 ? C.brown : C.muted,
-                          }}>{clientCtx.length} chars {clientCtx.length < 60 ? "— more detail = better" : "✓"}</div>
-                        </div>
-                        <textarea
-                          value={clientCtx} onChange={e => setCC(e.target.value)} rows={5}
-                          placeholder="Describe the brand: what they do, who they serve, what makes them different, tone, goals, market…"
-                          style={inp}
-                        />
-                        {clientCtx.trim().length > 20 && (
-                          <div style={{
-                            marginTop:10, padding:"12px 16px",
-                            background:"rgba(123,92,66,0.1)",
-                            borderLeft:`2px solid ${C.brown}`,
-                          }}>
-                            <div style={{
-                              fontFamily:"'Barlow Condensed',sans-serif", fontSize:9,
-                              fontWeight:700, color:C.brown, letterSpacing:"0.18em", marginBottom:5,
-                            }}>BRIEF PREVIEW</div>
-                            <p style={{
-                              fontFamily:"Georgia,serif", fontSize:12.5,
-                              lineHeight:1.7, color:C.sand, margin:0,
-                            }}>{clientCtx}</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {err && (
-                    <div style={{
-                      background:"rgba(140,30,30,0.25)",
-                      border:"1px solid rgba(200,70,70,0.4)",
-                      padding:"10px 16px", marginBottom:14,
-                      fontFamily:"'Barlow Condensed',sans-serif", fontSize:11,
-                      color:"#f5a0a0", letterSpacing:"0.06em",
-                      lineHeight:1.6, wordBreak:"break-word",
-                    }}>⚠ {err}</div>
-                  )}
-
-                  <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
-                    <button onClick={() => genOne(section)} disabled={busy} style={{
-                      padding:"11px 22px", background:busy?C.muted:C.brown, color:C.cream,
-                      border:"none", fontFamily:"'Barlow Condensed',sans-serif",
-                      fontWeight:700, fontSize:11, letterSpacing:"0.16em", opacity:busy?0.5:1,
-                    }}>
-                      {spinning===section ? "GENERATING…" : `GENERATE ${activeSec?.label.toUpperCase()}`}
-                    </button>
-                    <button onClick={genAll} disabled={busy} style={{
-                      padding:"11px 22px", background:"transparent",
-                      color:busy?C.muted:C.sand,
-                      border:`1px solid ${busy?C.muted:C.sandDark}`,
-                      fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700,
-                      fontSize:11, letterSpacing:"0.16em", opacity:busy?0.45:1,
-                    }}>
-                      {allBusy ? `BUILDING… ${progress}/${SECTIONS.length}` : "✦  GENERATE ALL SECTIONS"}
-                    </button>
-                    {progress > 0 && !busy && (
-                      <button onClick={() => { setGenerated({}); setErr(""); }} style={{
-                        padding:"11px 16px", background:"transparent", color:C.muted,
-                        border:"1px solid rgba(255,255,255,0.08)",
-                        fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700,
-                        fontSize:10, letterSpacing:"0.14em",
-                      }}>RESET</button>
-                    )}
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:0}}>
+                  <div style={{padding:20,borderRight:"1px solid rgba(255,255,255,0.06)"}}>
+                    <FL>TARGET SEGMENT</FL>
+                    <P size={13} color={C.sandL} style={{marginBottom:16}}>{c.target_segment}</P>
+                    <FL>HEADLINE</FL>
+                    <p style={{fontFamily:"'DM Serif Display',serif",fontSize:18,color:C.cream,marginBottom:16,fontStyle:"italic"}}>"{c.headline}"</p>
+                    <FL>HOOK</FL>
+                    <P size={13} color={C.sand}>{c.hook}</P>
+                  </div>
+                  <div style={{padding:20}}>
+                    <FL>BODY COPY</FL>
+                    <P size={13} color={C.sandL} style={{marginBottom:16}}>{c.body_copy}</P>
+                    <FL>CTA</FL>
+                    <div style={{display:"inline-block",background:C.brown,padding:"6px 14px",fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:11,color:C.cream,letterSpacing:"0.1em",marginBottom:16}}>{c.cta}</div>
+                    <FL>VISUAL DIRECTION</FL>
+                    <P size={12.5} color={C.sandD} style={{fontStyle:"italic"}}>{c.visual_direction}</P>
                   </div>
                 </div>
-
-                {/* Output area */}
-                <div style={{ flex:1, overflow:"auto", padding:"28px 28px 48px" }}>
-                  <div style={{ display:"flex", alignItems:"baseline", gap:14, marginBottom:24 }}>
-                    <span style={{
-                      fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900,
-                      fontSize:50, color:"rgba(255,255,255,0.04)", lineHeight:1,
-                    }}>{activeSec?.num}</span>
-                    <h2 style={{
-                      fontFamily:"'DM Serif Display',serif", fontSize:28,
-                      color:C.cream, fontWeight:400,
-                    }}>{activeSec?.label}</h2>
-                    {generated[section] && <Tag>GENERATED</Tag>}
-                  </div>
-
-                  {spinning===section && !generated[section] ? (
-                    <div style={{
-                      border:"1px dashed rgba(255,255,255,0.07)",
-                      padding:"72px 40px", textAlign:"center",
-                    }}>
-                      <span style={{
-                        fontSize:48, display:"inline-block",
-                        animation:"spin 1.5s linear infinite", opacity:0.2,
-                      }}>◌</span>
-                      <p style={{
-                        fontFamily:"'DM Serif Display',serif", fontSize:17,
-                        fontStyle:"italic", color:C.muted, marginTop:16,
-                      }}>Generating {activeSec?.label}…</p>
-                    </div>
-                  ) : generated[section] ? renderSection(section, generated[section]) : (
-                    <div style={{
-                      border:"1px dashed rgba(255,255,255,0.07)",
-                      padding:"72px 40px", textAlign:"center",
-                    }}>
-                      <div style={{
-                        fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900,
-                        fontSize:76, color:"rgba(255,255,255,0.03)",
-                        letterSpacing:"-0.04em", marginBottom:16,
-                      }}>MUSED</div>
-                      <p style={{
-                        fontFamily:"'DM Serif Display',serif", fontSize:17,
-                        fontStyle:"italic", color:C.muted, marginBottom:8,
-                      }}>This section is waiting to be built.</p>
-                      <p style={{
-                        fontFamily:"'Barlow Condensed',sans-serif", fontSize:11,
-                        color:"rgba(255,255,255,0.15)", letterSpacing:"0.1em",
-                      }}>{!isStudio && !clientName ? "Enter a client name and brief above" : "Click Generate above"}</p>
-                    </div>
-                  )}
+                <div style={{padding:"12px 20px",background:"rgba(255,255,255,0.02)",borderTop:"1px solid rgba(255,255,255,0.05)"}}>
+                  <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,color:C.brown,letterSpacing:"0.15em"}}>KPI  </span>
+                  <span style={{fontFamily:"Georgia,serif",fontSize:12,color:C.sandD}}>{c.kpi}</span>
                 </div>
-              </main>
-            </div>
-          )}
-
-          {/* ── CASE STUDIES ── */}
-          {tab==="casestudy" && (
-            <div style={{ padding:"50px 44px", maxWidth:980, margin:"0 auto" }}>
-              <div style={{ marginBottom:44 }}>
-                <div style={{
-                  fontFamily:"'Barlow Condensed',sans-serif", fontSize:9,
-                  fontWeight:700, color:C.muted, letterSpacing:"0.24em", marginBottom:12,
-                }}>REFERENCE FILES</div>
-                <h2 style={{
-                  fontFamily:"'DM Serif Display',serif", fontSize:42,
-                  fontWeight:400, lineHeight:1.1, marginBottom:16,
-                }}>
-                  What we can learn<br/>
-                  <em style={{ color:C.sand }}>from these brands.</em>
-                </h2>
-                <p style={{
-                  fontFamily:"Georgia,serif", fontSize:14,
-                  lineHeight:1.8, color:C.muted, maxWidth:540,
-                }}>Two real brand strategies, dissected. Use as reference when briefing clients or sharpening Mused's positioning.</p>
               </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
-              <div style={{ display:"flex", flexDirection:"column", gap:3 }}>
-                {CASES.map((cs,i) => (
-                  <div key={i}>
-                    <button onClick={() => setCaseOpen(caseOpen===i ? null : i)} style={{
-                      width:"100%", textAlign:"left",
-                      display:"grid", gridTemplateColumns:"1fr auto",
-                      alignItems:"center", padding:"28px 32px",
-                      background: caseOpen===i ? cs.color : "rgba(255,255,255,0.03)",
-                      border:"none", borderLeft:`4px solid ${cs.color}`, gap:20,
-                    }}>
-                      <div>
-                        <div style={{
-                          fontFamily:"'Barlow Condensed',sans-serif", fontSize:9, fontWeight:700,
-                          color: caseOpen===i ? "rgba(255,255,255,0.65)" : C.muted,
-                          letterSpacing:"0.2em", marginBottom:7,
-                        }}>{cs.type.toUpperCase()}</div>
-                        <div style={{ fontFamily:"'DM Serif Display',serif", fontSize:24, color:C.cream }}>{cs.name}</div>
-                        <div style={{
-                          fontFamily:"Georgia,serif", fontSize:13, fontStyle:"italic",
-                          color: caseOpen===i ? "rgba(255,255,255,0.75)" : C.muted,
-                          marginTop:7, lineHeight:1.5,
-                        }}>{cs.lesson}</div>
-                      </div>
-                      <div style={{
-                        fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700,
-                        fontSize:24, color: caseOpen===i ? C.cream : C.muted,
-                      }}>{caseOpen===i ? "−" : "+"}</div>
-                    </button>
-
-                    {caseOpen===i && (
-                      <div style={{ background:"rgba(255,255,255,0.02)", borderLeft:`4px solid ${cs.color}` }}>
-                        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr" }}>
-                          {[["MISSION",cs.mission],["VISION",cs.vision]].map(([l,v]) => (
-                            <div key={l} style={{ padding:"24px 28px", borderBottom:"1px solid rgba(255,255,255,0.05)" }}>
-                              <div style={{
-                                fontFamily:"'Barlow Condensed',sans-serif", fontSize:9,
-                                fontWeight:700, color:C.muted, letterSpacing:"0.2em", marginBottom:10,
-                              }}>{l}</div>
-                              <p style={{ fontFamily:"Georgia,serif", fontSize:14, lineHeight:1.75, color:C.sandLight }}>{v}</p>
-                            </div>
-                          ))}
-                        </div>
-                        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr" }}>
-                          <div style={{ padding:"24px 28px" }}>
-                            <div style={{
-                              fontFamily:"'Barlow Condensed',sans-serif", fontSize:9,
-                              fontWeight:700, color:C.muted, letterSpacing:"0.2em", marginBottom:12,
-                            }}>BRAND VALUES</div>
-                            <div style={{ display:"flex", flexWrap:"wrap", gap:7 }}>
-                              {cs.values.map(v => (
-                                <span key={v} style={{
-                                  background:cs.color+"1e", color:C.sandLight,
-                                  padding:"4px 11px", fontFamily:"'Barlow Condensed',sans-serif",
-                                  fontWeight:700, fontSize:11, border:`1px solid ${cs.color}3e`,
-                                }}>{v}</span>
-                              ))}
-                            </div>
-                          </div>
-                          <div style={{ padding:"24px 28px" }}>
-                            <div style={{
-                              fontFamily:"'Barlow Condensed',sans-serif", fontSize:9,
-                              fontWeight:700, color:C.muted, letterSpacing:"0.2em", marginBottom:12,
-                            }}>BRAND VOICE</div>
-                            <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
-                              {cs.voice.map(v => (
-                                <span key={v} style={{
-                                  border:"1px solid rgba(255,255,255,0.13)", color:C.sand,
-                                  padding:"5px 15px", fontFamily:"'DM Serif Display',serif",
-                                  fontSize:14, fontStyle:"italic",
-                                }}>{v}</span>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                        <div style={{
-                          padding:"20px 28px", background:cs.color+"14",
-                          borderTop:"1px solid rgba(255,255,255,0.05)",
-                        }}>
-                          <span style={{
-                            fontFamily:"'Barlow Condensed',sans-serif", fontSize:9,
-                            fontWeight:700, color:cs.color, letterSpacing:"0.2em",
-                          }}>MUSED INSIGHT  </span>
-                          <span style={{
-                            fontFamily:"Georgia,serif", fontSize:14,
-                            fontStyle:"italic", color:C.sandLight, lineHeight:1.75,
-                          }}>{cs.insight}</span>
-                        </div>
-                      </div>
-                    )}
+function ContentStudioTool({name, ctx}) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState("");
+  const [topic, setTopic] = useState("");
+  const [platform, setPlatform] = useState("all");
+  const generate = async () => {
+    if (!name || !ctx) { setErr("Set brand name and context first"); return; }
+    setErr(""); setLoading(true);
+    try {
+      const shape = `{"instagram_caption":"","instagram_hook":"","instagram_hashtags":["","","","",""],"tiktok_script":"","tiktok_hook":"","linkedin_post":"","twitter":"","youtube_title":"","youtube_description":"","content_idea_1":"","content_idea_2":"","content_idea_3":""}`;
+      const topicPart = topic ? ` Content topic/theme: "${topic}".` : "";
+      const platformPart = platform !== "all" ? ` Focus primarily on ${platform}.` : "";
+      const prompt = `You are a social media strategist and copywriter. Brand: "${name}". Context: ${ctx}.${topicPart}${platformPart}\n\nWrite real, platform-optimized content — not placeholder text. Every caption, script, and post must sound authentic to this brand's voice.\n\nReturn ONLY this JSON:\n${shape}`;
+      const r = await callTool(prompt, 2000);
+      setData(r);
+    } catch(e) { setErr(e.message); }
+    setLoading(false);
+  };
+  const platforms = [
+    {id:"instagram",label:"Instagram",data:d=>[["CAPTION",d.instagram_caption],["HOOK",d.instagram_hook]],extra:d=>d.instagram_hashtags,bg:"#6B3D5A"},
+    {id:"tiktok",label:"TikTok",data:d=>[["HOOK",d.tiktok_hook],["SCRIPT",d.tiktok_script]],bg:"#3D5A6B"},
+    {id:"linkedin",label:"LinkedIn",data:d=>[["POST",d.linkedin_post]],bg:"#3D4A6B"},
+    {id:"twitter",label:"Twitter/X",data:d=>[["TWEET",d.twitter]],bg:C.black},
+    {id:"youtube",label:"YouTube",data:d=>[["TITLE",d.youtube_title],["DESCRIPTION",d.youtube_description]],bg:"#6B3D3D"},
+  ];
+  return (
+    <div style={{padding:"28px 32px",height:"calc(100vh - 65px)",overflow:"auto"}}>
+      <div style={{maxWidth:980,margin:"0 auto"}}>
+        <div style={{marginBottom:32}}>
+          <h2 style={{fontFamily:"'DM Serif Display',serif",fontSize:36,color:C.cream,marginTop:12,marginBottom:8}}>Content Studio</h2>
+          <P color={C.muted}>Generate platform-optimized content across Instagram, TikTok, LinkedIn, Twitter and YouTube in one go.</P>
+        </div>
+        <div style={{marginBottom:20,display:"flex",gap:10,flexWrap:"wrap",alignItems:"center"}}>
+          <input value={topic} onChange={e=>setTopic(e.target.value)} placeholder="Content topic or theme (e.g. New collection launch, Behind the scenes…)" style={{...inp(),width:380}}/>
+          <select value={platform} onChange={e=>setPlatform(e.target.value)} style={{...inp(),width:160,cursor:"pointer"}}>
+            <option value="all">All Platforms</option>
+            <option value="Instagram">Instagram</option>
+            <option value="TikTok">TikTok</option>
+            <option value="LinkedIn">LinkedIn</option>
+            <option value="YouTube">YouTube</option>
+          </select>
+          <BtnPrimary onClick={generate} disabled={loading}>{loading?"GENERATING…":"✦ GENERATE CONTENT"}</BtnPrimary>
+        </div>
+        <Err msg={err}/>
+        {loading && <Spinner label="Content"/>}
+        {!loading && !data && <Empty msg="Generate platform-specific content for this brand"/>}
+        {!loading && data && (
+          <div style={{display:"flex",flexDirection:"column",gap:3,animation:"fadeUp 0.4s ease"}}>
+            {platforms.map(p=>(
+              <div key={p.id} style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.06)"}}>
+                <div style={{padding:"12px 20px",background:p.bg}}>
+                  <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:11,color:C.cream,letterSpacing:"0.2em"}}>{p.label.toUpperCase()}</span>
+                </div>
+                <div style={{display:"grid",gridTemplateColumns:`repeat(${p.data(data).length},1fr)`,gap:0}}>
+                  {p.data(data).map(([l,v],i)=>(
+                    <div key={l} style={{padding:20,borderRight:i<p.data(data).length-1?"1px solid rgba(255,255,255,0.06)":"none"}}>
+                      <FL>{l}</FL>
+                      <P size={13} color={C.sandL}>{v}</P>
+                    </div>
+                  ))}
+                </div>
+                {p.extra && <div style={{padding:"10px 20px",borderTop:"1px solid rgba(255,255,255,0.06)",display:"flex",flexWrap:"wrap",gap:6}}>
+                  {(p.extra(data)||[]).map((h,i)=><span key={i} style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:11,color:C.sandD}}>#{h}</span>)}
+                </div>}
+              </div>
+            ))}
+            <div style={{background:C.brown,padding:20}}>
+              <FL>CONTENT IDEAS</FL>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+                {[data.content_idea_1,data.content_idea_2,data.content_idea_3].map((idea,i)=>(
+                  <div key={i} style={{background:"rgba(0,0,0,0.2)",padding:14}}>
+                    <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,color:"rgba(255,255,255,0.4)",letterSpacing:"0.2em",marginBottom:6}}>IDEA 0{i+1}</div>
+                    <P size={12.5} color={C.sandL}>{idea}</P>
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
-              <div style={{ marginTop:3, background:C.brown, padding:"32px" }}>
-                <div style={{
-                  fontFamily:"'Barlow Condensed',sans-serif", fontSize:9, fontWeight:700,
-                  color:C.black, letterSpacing:"0.24em", opacity:0.5, marginBottom:14,
-                }}>THE COMMON THREAD</div>
-                <p style={{
-                  fontFamily:"'DM Serif Display',serif", fontSize:20,
-                  fontStyle:"italic", lineHeight:1.65, color:C.cream, margin:0,
-                }}>
-                  Both brands win because they have one clear emotional job. Not just what they sell —{" "}
-                  <em>how they make people feel about themselves.</em> That is the work Mused does.
-                </p>
+function LeadQualifierTool() {
+  const [form, setForm] = useState({brand:"",industry:"",goal:"",budget:"",timeline:"",brief:"",challenge:"",source:""});
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState("");
+  const upd = (k,v) => setForm(p=>({...p,[k]:v}));
+  const qualify = async () => {
+    if (!form.brand || !form.brief) { setErr("Brand name and brief are required."); return; }
+    setErr(""); setLoading(true);
+    try {
+      const shape = `{"fit_score":0,"intent_score":0,"mql_status":"","fit_analysis":"","intent_analysis":"","strengths":["","",""],"concerns":["",""],"recommended_action":"","pitch_angle":"","urgency":"Low|Medium|High"}`;
+      const prompt = `You are a brand strategist evaluating a potential client lead for a creative brand agency.\n\nLead Info:\n- Brand/Company: ${form.brand}\n- Industry: ${form.industry}\n- Goal: ${form.goal}\n- Budget: ${form.budget}\n- Timeline: ${form.timeline}\n- Brand Brief: ${form.brief}\n- Main Challenge: ${form.challenge}\n- How they found us: ${form.source}\n\nScore fit (1-10: do they match the ideal client profile?) and intent (1-10: are they ready to buy?). MQL status: "Qualified" (fit≥7 AND intent≥7), "Needs Nurturing" (fit≥5 OR intent≥5), "Not a Fit" (both <5).\n\nReturn ONLY this JSON:\n${shape}`;
+      const r = await callTool(prompt);
+      setResult(r);
+    } catch(e) { setErr(e.message); }
+    setLoading(false);
+  };
+  const statusColors = {"Qualified":"#3D7A4A","Needs Nurturing":"#7A6A3D","Not a Fit":"#7A3D3D"};
+  const ScoreBar = ({label,score,color}) => (
+    <div style={{marginBottom:16}}>
+      <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,color:C.sandD,letterSpacing:"0.2em"}}>{label}</div>
+        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:14,color}}>{score}/10</div>
+      </div>
+      <div style={{height:4,background:"rgba(255,255,255,0.08)",borderRadius:2}}>
+        <div style={{height:"100%",width:`${(score/10)*100}%`,background:color,borderRadius:2,transition:"width 1s"}}/>
+      </div>
+    </div>
+  );
+  const Field = ({label,children}) => <div style={{marginBottom:14}}><div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.sandD,letterSpacing:"0.2em",marginBottom:6}}>{label}</div>{children}</div>;
+  return (
+    <div style={{padding:"28px 32px",height:"calc(100vh - 65px)",overflow:"auto"}}>
+      <div style={{maxWidth:980,margin:"0 auto"}}>
+        <div style={{marginBottom:32}}>
+          <h2 style={{fontFamily:"'DM Serif Display',serif",fontSize:36,color:C.cream,marginTop:12,marginBottom:8}}>Lead Qualifier</h2>
+          <P color={C.muted}>Score incoming leads on fit and intent to identify Marketing Qualified Leads (MQLs) ready to convert.</P>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:20}}>
+          <Field label="BRAND / COMPANY NAME *"><input value={form.brand} onChange={e=>upd("brand",e.target.value)} placeholder="e.g. Lumina Studio" style={inp()}/></Field>
+          <Field label="INDUSTRY"><input value={form.industry} onChange={e=>upd("industry",e.target.value)} placeholder="e.g. Photography, Fashion, Tech" style={inp()}/></Field>
+          <Field label="MAIN GOAL">
+            <select value={form.goal} onChange={e=>upd("goal",e.target.value)} style={{...inp(),cursor:"pointer"}}>
+              <option value="">Select goal…</option>
+              <option>Launch a new brand</option>
+              <option>Rebrand / refresh existing brand</option>
+              <option>Improve brand strategy</option>
+              <option>Create content / campaigns</option>
+              <option>Just exploring</option>
+            </select>
+          </Field>
+          <Field label="BUDGET RANGE">
+            <select value={form.budget} onChange={e=>upd("budget",e.target.value)} style={{...inp(),cursor:"pointer"}}>
+              <option value="">Select budget…</option>
+              <option>Under $500</option>
+              <option>$500 – $2,000</option>
+              <option>$2,000 – $5,000</option>
+              <option>$5,000 – $10,000</option>
+              <option>$10,000+</option>
+            </select>
+          </Field>
+          <Field label="TIMELINE">
+            <select value={form.timeline} onChange={e=>upd("timeline",e.target.value)} style={{...inp(),cursor:"pointer"}}>
+              <option value="">Select timeline…</option>
+              <option>ASAP (under 1 month)</option>
+              <option>1 – 3 months</option>
+              <option>3 – 6 months</option>
+              <option>6 months+</option>
+              <option>Just exploring</option>
+            </select>
+          </Field>
+          <Field label="HOW THEY FOUND YOU">
+            <select value={form.source} onChange={e=>upd("source",e.target.value)} style={{...inp(),cursor:"pointer"}}>
+              <option value="">Select source…</option>
+              <option>Instagram</option>
+              <option>TikTok</option>
+              <option>LinkedIn</option>
+              <option>Referral</option>
+              <option>Google</option>
+              <option>Other</option>
+            </select>
+          </Field>
+        </div>
+        <Field label="BRAND BRIEF *"><textarea value={form.brief} onChange={e=>upd("brief",e.target.value)} rows={4} placeholder="Describe their brand, what they do, who they serve…" style={inp()}/></Field>
+        <Field label="MAIN CHALLENGE"><textarea value={form.challenge} onChange={e=>upd("challenge",e.target.value)} rows={3} placeholder="What's their biggest brand or marketing challenge right now?" style={inp()}/></Field>
+        <div style={{marginBottom:24}}><Err msg={err}/><BtnPrimary onClick={qualify} disabled={loading}>{loading?"QUALIFYING LEAD…":"✦ QUALIFY THIS LEAD"}</BtnPrimary></div>
+        {loading && <Spinner label="Lead Score"/>}
+        {!loading && result && (
+          <div style={{animation:"fadeUp 0.4s ease"}}>
+            <div style={{background:statusColors[result.mql_status]||C.brown,padding:"24px 28px",marginBottom:3,display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
+              <div>
+                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,color:"rgba(255,255,255,0.5)",letterSpacing:"0.25em",marginBottom:6}}>MQL STATUS</div>
+                <div style={{fontFamily:"'DM Serif Display',serif",fontSize:28,color:C.cream}}>{result.mql_status}</div>
+              </div>
+              <div style={{textAlign:"right"}}>
+                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,color:"rgba(255,255,255,0.5)",letterSpacing:"0.2em",marginBottom:4}}>URGENCY</div>
+                <Pill bg="rgba(0,0,0,0.3)" fg={C.cream}>{result.urgency}</Pill>
+              </div>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:3,marginBottom:3}}>
+              <div style={{background:C.black,padding:24}}>
+                <ScoreBar label="FIT SCORE — Do they match our ICP?" score={result.fit_score} color="#7dbe7d"/>
+                <ScoreBar label="INTENT SCORE — Are they ready to buy?" score={result.intent_score} color={C.sand}/>
+              </div>
+              <div style={{background:C.green,padding:24}}>
+                <FL>FIT ANALYSIS</FL><P size={13} color={C.sandL} style={{marginBottom:12}}>{result.fit_analysis}</P>
+                <FL>INTENT ANALYSIS</FL><P size={13} color={C.sandL}>{result.intent_analysis}</P>
+              </div>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:3,marginBottom:3}}>
+              <div style={{background:C.black,padding:22}}>
+                <FL>STRENGTHS</FL>
+                {(result.strengths||[]).map((s,i)=><div key={i} style={{display:"flex",gap:8,marginBottom:8}}><span style={{color:"#7dbe7d"}}>✓</span><P size={12.5} color={C.sandL}>{s}</P></div>)}
+              </div>
+              <div style={{background:"rgba(140,30,30,0.15)",padding:22}}>
+                <FL>CONCERNS</FL>
+                {(result.concerns||[]).map((c,i)=><div key={i} style={{display:"flex",gap:8,marginBottom:8}}><span style={{color:"#f5a0a0"}}>—</span><P size={12.5} color={C.sandL}>{c}</P></div>)}
+              </div>
+            </div>
+            <div style={{background:C.brown,padding:22,marginBottom:3}}>
+              <FL>RECOMMENDED ACTION</FL>
+              <P color={C.cream} size={14}>{result.recommended_action}</P>
+            </div>
+            <div style={{background:"rgba(255,255,255,0.03)",padding:22,borderLeft:`3px solid ${C.brown}`}}>
+              <FL>PITCH ANGLE</FL>
+              <P color={C.sand} style={{fontStyle:"italic"}} size={14}>{result.pitch_angle}</P>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── CASE STUDIES ──────────────────────────────────
+const CASES = [
+  {name:"Sundae Kind of Love",type:"Romance Bookshop",color:"#E05C9A",lesson:"Turned genre stigma into brand fuel.",mission:"To melt the stigma around romance and make book buying feel like a sweet treat.",vision:"A community of romance lovers who feel proud of what they read.",values:["Romanticise the Mundane","Community First","All Flavours Welcome","Joy for Joy's Sake","No Shame in the Spice","Served with Kindness"],voice:["Sweet & Cheeky","Warm & Human","Humorous"],insight:"Their brand gives emotional permission. What permission does your brand give?"},
+  {name:"Pure Petals Skin Care",type:"Organic Skincare",color:"#8B2252",lesson:"Every touchpoint reinforces the same calm earthy world.",mission:"Gentle care for naturally beautiful skin — earth-grown and organic.",vision:"Products that integrate seamlessly into daily life. Nothing excessive.",values:["Purity First","Earth-Grown","Ethically Sourced","Calm & Approachable","Science + Care","Minimalism"],voice:["Soft & Reassuring","Educational","Clean Elegance"],insight:"They built recognition through restraint. Coherence is a luxury brand's real advantage."},
+];
+
+function CaseStudies() {
+  const [open, setOpen] = useState(null);
+  return (
+    <div style={{padding:"50px 44px",maxWidth:980,margin:"0 auto",overflow:"auto",height:"calc(100vh - 65px)"}}>
+      <div style={{marginBottom:44}}>
+        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.muted,letterSpacing:"0.24em",marginBottom:12}}>REFERENCE FILES</div>
+        <h2 style={{fontFamily:"'DM Serif Display',serif",fontSize:42,fontWeight:400,lineHeight:1.1,marginBottom:16}}>What we can learn<br/><em style={{color:C.sand}}>from these brands.</em></h2>
+      </div>
+      <div style={{display:"flex",flexDirection:"column",gap:3}}>
+        {CASES.map((cs,i)=>(
+          <div key={i}>
+            <button onClick={()=>setOpen(open===i?null:i)} style={{width:"100%",textAlign:"left",display:"grid",gridTemplateColumns:"1fr auto",alignItems:"center",padding:"28px 32px",background:open===i?cs.color:"rgba(255,255,255,0.03)",border:"none",borderLeft:`4px solid ${cs.color}`,gap:20}}>
+              <div>
+                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:open===i?"rgba(255,255,255,0.65)":C.muted,letterSpacing:"0.2em",marginBottom:7}}>{cs.type.toUpperCase()}</div>
+                <div style={{fontFamily:"'DM Serif Display',serif",fontSize:24,color:C.cream}}>{cs.name}</div>
+                <div style={{fontFamily:"Georgia,serif",fontSize:13,fontStyle:"italic",color:open===i?"rgba(255,255,255,0.75)":C.muted,marginTop:7}}>{cs.lesson}</div>
+              </div>
+              <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:24,color:open===i?C.cream:C.muted}}>{open===i?"−":"+"}</div>
+            </button>
+            {open===i&&(
+              <div style={{background:"rgba(255,255,255,0.02)",borderLeft:`4px solid ${cs.color}`}}>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr"}}>
+                  {[["MISSION",cs.mission],["VISION",cs.vision]].map(([l,v])=>(
+                    <div key={l} style={{padding:"24px 28px",borderBottom:"1px solid rgba(255,255,255,0.05)"}}>
+                      <FL>{l}</FL><P size={14} color={C.sandL}>{v}</P>
+                    </div>
+                  ))}
+                </div>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr"}}>
+                  <div style={{padding:"24px 28px"}}>
+                    <FL>BRAND VALUES</FL>
+                    <div style={{display:"flex",flexWrap:"wrap",gap:7}}>{cs.values.map(v=><span key={v} style={{background:cs.color+"1e",color:C.sandL,padding:"4px 11px",fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:11,border:`1px solid ${cs.color}3e`}}>{v}</span>)}</div>
+                  </div>
+                  <div style={{padding:"24px 28px"}}>
+                    <FL>BRAND VOICE</FL>
+                    <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>{cs.voice.map(v=><span key={v} style={{border:"1px solid rgba(255,255,255,0.13)",color:C.sand,padding:"5px 15px",fontFamily:"'DM Serif Display',serif",fontSize:14,fontStyle:"italic"}}>{v}</span>)}</div>
+                  </div>
+                </div>
+                <div style={{padding:"20px 28px",background:cs.color+"14",borderTop:"1px solid rgba(255,255,255,0.05)"}}>
+                  <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:cs.color,letterSpacing:"0.2em"}}>MUSED INSIGHT  </span>
+                  <span style={{fontFamily:"Georgia,serif",fontSize:14,fontStyle:"italic",color:C.sandL}}>{cs.insight}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+      <div style={{marginTop:3,background:C.brown,padding:"32px"}}>
+        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.black,letterSpacing:"0.24em",opacity:0.5,marginBottom:14}}>THE COMMON THREAD</div>
+        <p style={{fontFamily:"'DM Serif Display',serif",fontSize:20,fontStyle:"italic",lineHeight:1.65,color:C.cream,margin:0}}>Both brands win because they have one clear emotional job. Not just what they sell — <em>how they make people feel about themselves.</em> That is the work Mused does.</p>
+      </div>
+    </div>
+  );
+}
+
+// ── STRATEGY BUILDER ──────────────────────────────
+function StrategyBuilder({isStudio}) {
+  const [section, setSection] = useState("overview");
+  const [clientName, setCN] = useState("");
+  const [clientCtx, setCC] = useState("");
+  const [generated, setGenerated] = useState({});
+  const [spinning, setSpinning] = useState(null);
+  const [allBusy, setAllBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const [collapsedGroups, setCollapsed] = useState({});
+
+  const activeName = isStudio ? STUDIO_NAME : clientName;
+  const activeCtx  = isStudio ? STUDIO_CTX  : clientCtx;
+  const busy = !!spinning || allBusy;
+  const activeSec = ALL_SECTIONS.find(s=>s.id===section);
+  const activeGroup = GROUPS.find(g=>g.sections.some(s=>s.id===section));
+  const progress = Object.keys(generated).length;
+
+  const toggleGroup = (g) => setCollapsed(p=>({...p,[g]:!p[g]}));
+
+  const genOne = async (sid) => {
+    if (!activeName.trim() || !activeCtx.trim()) { setErr(isStudio?"Context missing.":"Fill in client name and brief first."); return; }
+    setErr(""); setSpinning(sid);
+    try { const r = await callAPI(sid, activeName.trim(), activeCtx.trim()); setGenerated(p=>({...p,[sid]:r})); }
+    catch(e) { setErr(e.message); }
+    setSpinning(null);
+  };
+
+  const genAll = async () => {
+    if (!activeName.trim() || !activeCtx.trim()) { setErr(isStudio?"Context missing.":"Fill in client name and brief first."); return; }
+    setErr(""); setAllBusy(true);
+    for (const s of ALL_SECTIONS) {
+      setSpinning(s.id);
+      try { const r = await callAPI(s.id, activeName.trim(), activeCtx.trim()); setGenerated(p=>({...p,[s.id]:r})); }
+      catch(e) { setErr(`Stopped at "${s.label}": ${e.message}`); break; }
+    }
+    setSpinning(null); setAllBusy(false);
+  };
+
+  const inp2 = inp();
+  const Renderer = Renderers[section];
+
+  return (
+    <div style={{display:"flex",height:"calc(100vh - 65px)"}}>
+      {/* SIDEBAR */}
+      <aside style={{width:230,flexShrink:0,borderRight:"1px solid rgba(255,255,255,0.07)",display:"flex",flexDirection:"column",overflowY:"auto",background:"rgba(255,255,255,0.01)"}}>
+        {GROUPS.map(g=>(
+          <div key={g.label}>
+            <button onClick={()=>toggleGroup(g.label)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 16px 8px",background:"transparent",border:"none",borderBottom:"1px solid rgba(255,255,255,0.04)",cursor:"pointer"}}>
+              <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:8,fontWeight:700,color:g.color,letterSpacing:"0.22em"}}>{g.label}</div>
+              <span style={{color:C.muted,fontSize:10}}>{collapsedGroups[g.label]?"▸":"▾"}</span>
+            </button>
+            {!collapsedGroups[g.label] && g.sections.map(s=>{
+              const active=section===s.id, done=!!generated[s.id], isSpin=spinning===s.id;
+              return (
+                <button key={s.id} onClick={()=>setSection(s.id)} style={{display:"flex",alignItems:"center",gap:8,padding:"10px 16px",background:active?"rgba(244,240,232,0.93)":"transparent",color:active?C.black:done?C.sand:C.muted,border:"none",width:"100%",textAlign:"left",borderLeft:active?`3px solid ${g.color}`:"3px solid transparent",transition:"background 0.1s"}}>
+                  <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:10,color:active?g.color:done?C.sandD:C.muted,minWidth:20}}>{s.num}</span>
+                  <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:11,flex:1,fontWeight:active?700:400,letterSpacing:"0.04em"}}>{s.label}</span>
+                  {isSpin&&<span style={{display:"inline-block",animation:"spin 1s linear infinite",opacity:0.5,fontSize:10}}>◌</span>}
+                  {done&&!isSpin&&!active&&<span style={{color:g.color,fontSize:10}}>✓</span>}
+                </button>
+              );
+            })}
+          </div>
+        ))}
+        <div style={{padding:"14px 16px 20px",marginTop:"auto",borderTop:"1px solid rgba(255,255,255,0.05)"}}>
+          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.muted,letterSpacing:"0.18em",marginBottom:6}}>{progress}/{ALL_SECTIONS.length} COMPLETE</div>
+          <div style={{height:2,background:"rgba(255,255,255,0.07)",borderRadius:1}}>
+            <div style={{height:"100%",width:`${(progress/ALL_SECTIONS.length)*100}%`,background:activeGroup?.color||C.brown,transition:"width .5s",borderRadius:1}}/>
+          </div>
+        </div>
+      </aside>
+
+      {/* MAIN */}
+      <main style={{flex:1,overflow:"auto",display:"flex",flexDirection:"column"}}>
+        <div style={{padding:"18px 24px",borderBottom:"1px solid rgba(255,255,255,0.07)",background:"rgba(255,255,255,0.015)",flexShrink:0}}>
+          {isStudio && (
+            <div style={{marginBottom:14,padding:"12px 16px",background:"rgba(123,92,66,0.12)",borderLeft:`2px solid ${C.brown}`,display:"flex",gap:16,alignItems:"flex-start"}}>
+              <div style={{flex:1}}>
+                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.brown,letterSpacing:"0.2em",marginBottom:4}}>GENERATING FOR</div>
+                <div style={{fontFamily:"'DM Serif Display',serif",fontSize:15,color:C.cream,marginBottom:3}}>The Mused Studio</div>
+                <P size={12} color={C.sand}>{STUDIO_CTX}</P>
               </div>
             </div>
           )}
+          {!isStudio && (
+            <div style={{marginBottom:14}}>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
+                <div>
+                  <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.sandD,letterSpacing:"0.2em",marginBottom:6}}>CLIENT NAME *</div>
+                  <input value={clientName} onChange={e=>setCN(e.target.value)} placeholder="e.g. Bloom Atelier" style={{...inp2,fontFamily:"'DM Serif Display',serif",fontSize:15}}/>
+                </div>
+                <div>
+                  <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.sandD,letterSpacing:"0.2em",marginBottom:6}}>INDUSTRY</div>
+                  <input placeholder="e.g. Wellness, Fashion, Tech…" style={inp2}/>
+                </div>
+              </div>
+              <div>
+                <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+                  <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.sandD,letterSpacing:"0.2em"}}>BRAND BRIEF *</div>
+                  <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,color:clientCtx.length<60?C.brown:C.muted}}>{clientCtx.length} chars {clientCtx.length<60?"— more detail = better output":"✓"}</div>
+                </div>
+                <textarea value={clientCtx} onChange={e=>setCC(e.target.value)} rows={4} placeholder="Describe the brand: what they do, who they serve, what makes them different, tone, goals, market…" style={inp2}/>
+              </div>
+            </div>
+          )}
+          <Err msg={err}/>
+          <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+            <BtnPrimary onClick={()=>genOne(section)} disabled={busy}>{spinning===section?"GENERATING…":`GENERATE ${activeSec?.label.toUpperCase()}`}</BtnPrimary>
+            <BtnOutline onClick={genAll} disabled={busy}>{allBusy?`BUILDING… ${progress}/${ALL_SECTIONS.length}`:"✦  GENERATE ALL 19 SECTIONS"}</BtnOutline>
+            {progress>0&&!busy&&<button onClick={()=>{setGenerated({});setErr("");}} style={{padding:"11px 14px",background:"transparent",color:C.muted,border:"1px solid rgba(255,255,255,0.07)",fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:10,letterSpacing:"0.14em",cursor:"pointer"}}>RESET</button>}
+          </div>
         </div>
-      );
-    }
+        <div style={{flex:1,overflow:"auto",padding:"24px 24px 48px"}}>
+          <SectionTitle num={activeSec?.num} label={activeSec?.label} done={!!generated[section]}/>
+          {spinning===section&&!generated[section] ? <Spinner label={activeSec?.label}/> :
+           generated[section] ? (Renderer ? <Renderer d={generated[section]}/> : <pre style={{color:C.sand,fontSize:12}}>{JSON.stringify(generated[section],null,2)}</pre>) :
+           <Empty msg={!isStudio&&!clientName?"Enter client name and brief above":"Click Generate above"}/>}
+        </div>
+      </main>
+    </div>
+  );
+}
 
-    /* ════════════════════════════════════════════════════════════════════════
-       ROOT — PASSWORD GATE WRAPPER
-    ════════════════════════════════════════════════════════════════════════ */
-    function App() {
-      const [unlocked, setUnlocked] = useState(false);
-      if (!unlocked) return <PasswordGate onUnlock={() => setUnlocked(true)} />;
-      return <Studio />;
-    }
+// ── MAIN APP ──────────────────────────────────────
+const TOP_TABS = [
+  {id:"studio",label:"MY STUDIO",group:"strategy"},
+  {id:"client",label:"CLIENT BUILDER",group:"strategy"},
+  {id:"dna",label:"BRAND DNA",group:"vibiz"},
+  {id:"ads",label:"AD CAMPAIGNS",group:"vibiz"},
+  {id:"content",label:"CONTENT STUDIO",group:"vibiz"},
+  {id:"leads",label:"LEAD QUALIFIER",group:"vibiz"},
+  {id:"cases",label:"CASE STUDIES",group:"ref"},
+];
 
-    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
-  </script>
+function Studio() {
+  const [tab, setTab] = useState("studio");
+  const isStudio = tab==="studio";
+  const [clientName, setCN] = useState("");
+  const [clientCtx, setCC] = useState("");
+  const activeName = isStudio ? STUDIO_NAME : clientName;
+  const activeCtx  = isStudio ? STUDIO_CTX  : clientCtx;
+
+  return (
+    <div style={{minHeight:"100vh",background:C.black,color:C.cream}}>
+      <header style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 24px",borderBottom:"1px solid rgba(255,255,255,0.07)",background:C.black,position:"sticky",top:0,zIndex:20,flexWrap:"wrap"}}>
+        <div style={{display:"flex",alignItems:"center",gap:16,padding:"12px 0"}}>
+          <div style={{display:"inline-flex",flexDirection:"column",alignItems:"center"}}>
+            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:900,fontSize:22,color:C.cream,letterSpacing:"-0.02em",writingMode:"vertical-rl",transform:"rotate(180deg)",lineHeight:0.85}}>MUSED</div>
+            <div style={{display:"flex",gap:6,marginTop:2,fontFamily:"'Barlow Condensed',sans-serif",fontWeight:400,fontSize:5,color:C.cream,letterSpacing:"0.2em",opacity:0.5}}><span>THE</span><span>STUDIO</span></div>
+          </div>
+          <div style={{width:1,height:28,background:"rgba(255,255,255,0.1)"}}/>
+          <div>
+            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:8,fontWeight:700,letterSpacing:"0.22em",color:C.brown}}>BRAND STRATEGY PLATFORM</div>
+            <div style={{fontFamily:"'DM Serif Display',serif",fontSize:13,color:C.sand,fontStyle:"italic"}}>Turn positioning into presence.</div>
+          </div>
+        </div>
+        <nav style={{display:"flex",flexWrap:"wrap"}}>
+          {TOP_TABS.map(t=>{
+            const vibiz = t.group==="vibiz";
+            const active = tab===t.id;
+            return (
+              <button key={t.id} onClick={()=>setTab(t.id)} style={{padding:"12px 14px",background:active?vibiz?"#4A1942":C.brown:"transparent",color:active?C.cream:vibiz?C.muted:C.muted,border:"none",fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:9,letterSpacing:"0.16em",borderBottom:active?"none":`2px solid transparent`,transition:"all 0.15s",borderTop:active&&vibiz?"2px solid #8B2E8B":"none"}}>
+                {t.label}
+              </button>
+            );
+          })}
+        </nav>
+      </header>
+
+      {(tab==="studio"||tab==="client") && <StrategyBuilder isStudio={tab==="studio"} key={tab}/>}
+      {tab==="dna"     && <BrandDNATool name={activeName} ctx={activeCtx}/>}
+      {tab==="ads"     && <AdCampaignsTool name={activeName} ctx={activeCtx}/>}
+      {tab==="content" && <ContentStudioTool name={activeName} ctx={activeCtx}/>}
+      {tab==="leads"   && <LeadQualifierTool/>}
+      {tab==="cases"   && <CaseStudies/>}
+    </div>
+  );
+}
+
+// ── PASSWORD GATE ─────────────────────────────────
+function PasswordGate({onUnlock}) {
+  const [pw, setPw] = useState("");
+  const [err, setErr] = useState(false);
+  const [shake, setShake] = useState(false);
+  const ref = useRef(null);
+  useEffect(()=>{ref.current&&ref.current.focus();},[]);
+  const attempt = () => {
+    if (pw===PASSWORD) { onUnlock(); }
+    else { setErr(true); setShake(true); setPw(""); setTimeout(()=>setShake(false),500); }
+  };
+  return (
+    <div style={{minHeight:"100vh",background:C.black,display:"flex",alignItems:"center",justifyContent:"center",padding:24}}>
+      <div style={{position:"fixed",inset:0,backgroundImage:"radial-gradient(ellipse at 30% 20%,rgba(123,92,66,0.07) 0%,transparent 60%),radial-gradient(ellipse at 70% 80%,rgba(45,74,62,0.05) 0%,transparent 60%)",pointerEvents:"none"}}/>
+      <div style={{position:"relative",zIndex:1,width:"100%",maxWidth:380,textAlign:"center"}}>
+        <div style={{marginBottom:48}}>
+          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:400,fontSize:10,color:C.sandD,letterSpacing:"0.55em",marginBottom:4}}>THE</div>
+          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:900,fontSize:80,color:C.cream,letterSpacing:"-0.02em",lineHeight:0.85}}>MUSED</div>
+          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:400,fontSize:10,color:C.sandD,letterSpacing:"0.55em",marginTop:6}}>STUDIO</div>
+          <div style={{display:"flex",alignItems:"center",gap:16,margin:"24px auto 0",maxWidth:180}}>
+            <div style={{flex:1,height:1,background:`linear-gradient(to right,transparent,${C.brown})`}}/>
+            <div style={{width:4,height:4,background:C.brown,transform:"rotate(45deg)"}}/>
+            <div style={{flex:1,height:1,background:`linear-gradient(to left,transparent,${C.brown})`}}/>
+          </div>
+          <p style={{fontFamily:"'DM Serif Display',serif",fontSize:13,fontStyle:"italic",color:C.muted,marginTop:14}}>Brand Strategy Platform</p>
+        </div>
+        <div style={{background:"rgba(255,255,255,0.025)",border:`1px solid ${err?"rgba(200,100,100,0.3)":"rgba(255,255,255,0.06)"}`,padding:"32px 28px",transition:"border-color 0.3s",animation:shake?"shakeX 0.4s ease":"none"}}>
+          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.brown,letterSpacing:"0.28em",marginBottom:16}}>ACCESS REQUIRED</div>
+          <input ref={ref} type="password" value={pw} onChange={e=>{setPw(e.target.value);setErr(false);}} onKeyDown={e=>e.key==="Enter"&&attempt()} placeholder="Enter password" style={{width:"100%",padding:"13px 16px",background:"rgba(255,255,255,0.04)",border:`1px solid ${err?"rgba(200,100,100,0.5)":"rgba(255,255,255,0.1)"}`,color:C.cream,fontFamily:"'Barlow Condensed',sans-serif",fontSize:15,letterSpacing:"0.15em",textAlign:"center",marginBottom:err?8:16,transition:"border-color 0.3s"}}/>
+          {err&&<div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:10,color:"#f5a0a0",letterSpacing:"0.12em",marginBottom:14}}>Incorrect password. Try again.</div>}
+          <button onClick={attempt} style={{width:"100%",padding:"13px",background:C.brown,color:C.cream,border:"none",fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,fontSize:11,letterSpacing:"0.24em",cursor:"pointer"}}
+            onMouseEnter={e=>e.target.style.background=C.brownD}
+            onMouseLeave={e=>e.target.style.background=C.brown}>
+            ENTER →
+          </button>
+        </div>
+        <p style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:8,color:"rgba(255,255,255,0.08)",letterSpacing:"0.22em",marginTop:24}}>THE MUSED STUDIO · BRAND STRATEGY</p>
+      </div>
+      <style>{`@keyframes shakeX{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}`}</style>
+    </div>
+  );
+}
+
+function App() {
+  const [unlocked, setUnlocked] = useState(false);
+  return unlocked ? <Studio/> : <PasswordGate onUnlock={()=>setUnlocked(true)}/>;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
 </body>
 </html>
