@@ -560,16 +560,18 @@ const Renderers = {
 
 // ── VIBIZ TOOLS ───────────────────────────────────
 
-function BrandDNATool({name, ctx}) {
+function BrandDNATool() {
+  const [brandName, setBrandName] = useState("");
+  const [brandCtx, setBrandCtx] = useState("");
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
   const generate = async () => {
-    if (!name || !ctx) { setErr("Set brand name and context first"); return; }
+    if (!brandName.trim() || !brandCtx.trim()) { setErr("Enter brand name and context first."); return; }
     setErr(""); setLoading(true);
     try {
       const shape = `{"dna_statement":"","essence":"","personality_word":"","emotional_promise":"","cultural_truth":"","north_star":"","in_one_breath":""}`;
-      const prompt = `You are a brand strategist. Brand: "${name}". Context: ${ctx}\n\nDistil this brand down to its absolute DNA — the irreducible essence. Be specific and powerful, not generic.\n\nReturn ONLY this JSON:\n${shape}`;
+      const prompt = `You are a brand strategist. Brand: "${brandName}". Context: ${brandCtx}\n\nDistil this brand down to its absolute DNA — the irreducible essence. Be specific and powerful, not generic.\n\nReturn ONLY this JSON:\n${shape}`;
       const r = await callTool(prompt);
       setData(r);
     } catch(e) { setErr(e.message); }
@@ -578,15 +580,22 @@ function BrandDNATool({name, ctx}) {
   return (
     <div style={{padding:"28px 32px",height:"calc(100vh - 65px)",overflow:"auto"}}>
       <div style={{maxWidth:900,margin:"0 auto"}}>
-        <div style={{marginBottom:32}}>
+        <div style={{marginBottom:24}}>
           <h2 style={{fontFamily:"'DM Serif Display',serif",fontSize:36,color:C.cream,marginTop:12,marginBottom:8}}>Brand DNA Generator</h2>
           <P color={C.muted}>Distil any brand down to its irreducible essence — the single truth that everything else is built on.</P>
         </div>
-        <div style={{marginBottom:20,display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}>
-          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:11,color:C.sandD,padding:"8px 16px",background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)"}}>
-            Brand: <span style={{color:C.sand}}>{name||"—"}</span>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
+          <div>
+            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.sandD,letterSpacing:"0.2em",marginBottom:6}}>BRAND NAME *</div>
+            <input value={brandName} onChange={e=>setBrandName(e.target.value)} placeholder="e.g. The Mused Studio" style={{width:"100%",padding:"11px 14px",background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.12)",color:C.cream,fontFamily:"Georgia,serif",fontSize:14}}/>
           </div>
-          <BtnPrimary onClick={generate} disabled={loading}>{loading?"GENERATING DNA…":"✦ GENERATE BRAND DNA"}</BtnPrimary>
+          <div style={{display:"flex",alignItems:"flex-end"}}>
+            <BtnPrimary onClick={generate} disabled={loading} w="100%">{loading?"GENERATING DNA…":"✦ GENERATE BRAND DNA"}</BtnPrimary>
+          </div>
+        </div>
+        <div style={{marginBottom:16}}>
+          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.sandD,letterSpacing:"0.2em",marginBottom:6}}>BRAND CONTEXT *</div>
+          <textarea value={brandCtx} onChange={e=>setBrandCtx(e.target.value)} rows={3} placeholder="Describe the brand: what they do, who they serve, what makes them different…" style={{width:"100%",padding:"11px 14px",background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.12)",color:C.cream,fontFamily:"Georgia,serif",fontSize:14,resize:"vertical"}}/>
         </div>
         <Err msg={err}/>
         {loading && <Spinner label="Brand DNA"/>}
@@ -609,18 +618,20 @@ function BrandDNATool({name, ctx}) {
   );
 }
 
-function AdCampaignsTool({name, ctx}) {
+function AdCampaignsTool() {
+  const [brandName, setBrandName] = useState("");
+  const [brandCtx, setBrandCtx] = useState("");
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
   const [focus, setFocus] = useState("");
   const generate = async () => {
-    if (!name || !ctx) { setErr("Set brand name and context first"); return; }
+    if (!brandName.trim() || !brandCtx.trim()) { setErr("Enter brand name and context first."); return; }
     setErr(""); setLoading(true);
     try {
       const shape = `{"campaigns":[{"name":"","objective":"","platform":"","target_segment":"","headline":"","hook":"","body_copy":"","cta":"","visual_direction":"","kpi":""},{"name":"","objective":"","platform":"","target_segment":"","headline":"","hook":"","body_copy":"","cta":"","visual_direction":"","kpi":""},{"name":"","objective":"","platform":"","target_segment":"","headline":"","hook":"","body_copy":"","cta":"","visual_direction":"","kpi":""}]}`;
       const focusPart = focus ? ` Campaign focus: ${focus}.` : "";
-      const prompt = `You are a senior marketing strategist and copywriter. Brand: "${name}". Context: ${ctx}.${focusPart}\n\nCreate 3 distinct, specific, actionable ad campaign concepts with real copy (not placeholder text). Each should have a different objective and platform.\n\nReturn ONLY this JSON:\n${shape}`;
+      const prompt = `You are a senior marketing strategist and copywriter. Brand: "${brandName}". Context: ${brandCtx}.${focusPart}\n\nCreate 3 distinct, specific, actionable ad campaign concepts with real copy (not placeholder text). Each should have a different objective and platform.\n\nReturn ONLY this JSON:\n${shape}`;
       const r = await callTool(prompt, 2000);
       setData(r);
     } catch(e) { setErr(e.message); }
@@ -635,8 +646,21 @@ function AdCampaignsTool({name, ctx}) {
           <h2 style={{fontFamily:"'DM Serif Display',serif",fontSize:36,color:C.cream,marginTop:12,marginBottom:8}}>Ad Campaign Generator</h2>
           <P color={C.muted}>Generate 3 complete campaign concepts with real copy, targeting, creative direction and KPIs.</P>
         </div>
-        <div style={{marginBottom:20,display:"flex",gap:10,flexWrap:"wrap",alignItems:"center"}}>
-          <input value={focus} onChange={e=>setFocus(e.target.value)} placeholder="Optional: Campaign focus (e.g. Brand awareness, Lead gen, Launch)" style={{...inp(),width:360}}/>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
+          <div>
+            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.sandD,letterSpacing:"0.2em",marginBottom:6}}>BRAND NAME *</div>
+            <input value={brandName} onChange={e=>setBrandName(e.target.value)} placeholder="e.g. The Mused Studio" style={{width:"100%",padding:"11px 14px",background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.12)",color:C.cream,fontFamily:"Georgia,serif",fontSize:14}}/>
+          </div>
+          <div>
+            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.sandD,letterSpacing:"0.2em",marginBottom:6}}>CAMPAIGN FOCUS (OPTIONAL)</div>
+            <input value={focus} onChange={e=>setFocus(e.target.value)} placeholder="e.g. Brand awareness, Lead gen, Product launch" style={{width:"100%",padding:"11px 14px",background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.12)",color:C.cream,fontFamily:"Georgia,serif",fontSize:14}}/>
+          </div>
+        </div>
+        <div style={{marginBottom:12}}>
+          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.sandD,letterSpacing:"0.2em",marginBottom:6}}>BRAND CONTEXT *</div>
+          <textarea value={brandCtx} onChange={e=>setBrandCtx(e.target.value)} rows={3} placeholder="Describe the brand: what they do, who they serve, what makes them different…" style={{width:"100%",padding:"11px 14px",background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.12)",color:C.cream,fontFamily:"Georgia,serif",fontSize:14,resize:"vertical"}}/>
+        </div>
+        <div style={{marginBottom:20}}>
           <BtnPrimary onClick={generate} disabled={loading}>{loading?"GENERATING…":"✦ GENERATE CAMPAIGNS"}</BtnPrimary>
         </div>
         <Err msg={err}/>
@@ -687,20 +711,22 @@ function AdCampaignsTool({name, ctx}) {
   );
 }
 
-function ContentStudioTool({name, ctx}) {
+function ContentStudioTool() {
+  const [brandName, setBrandName] = useState("");
+  const [brandCtx, setBrandCtx] = useState("");
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
   const [topic, setTopic] = useState("");
   const [platform, setPlatform] = useState("all");
   const generate = async () => {
-    if (!name || !ctx) { setErr("Set brand name and context first"); return; }
+    if (!brandName.trim() || !brandCtx.trim()) { setErr("Enter brand name and context first."); return; }
     setErr(""); setLoading(true);
     try {
       const shape = `{"instagram_caption":"","instagram_hook":"","instagram_hashtags":["","","","",""],"tiktok_script":"","tiktok_hook":"","linkedin_post":"","twitter":"","youtube_title":"","youtube_description":"","content_idea_1":"","content_idea_2":"","content_idea_3":""}`;
       const topicPart = topic ? ` Content topic/theme: "${topic}".` : "";
       const platformPart = platform !== "all" ? ` Focus primarily on ${platform}.` : "";
-      const prompt = `You are a social media strategist and copywriter. Brand: "${name}". Context: ${ctx}.${topicPart}${platformPart}\n\nWrite real, platform-optimized content — not placeholder text. Every caption, script, and post must sound authentic to this brand's voice.\n\nReturn ONLY this JSON:\n${shape}`;
+      const prompt = `You are a social media strategist and copywriter. Brand: "${brandName}". Context: ${brandCtx}.${topicPart}${platformPart}\n\nWrite real, platform-optimized content — not placeholder text. Every caption, script, and post must sound authentic to this brand's voice.\n\nReturn ONLY this JSON:\n${shape}`;
       const r = await callTool(prompt, 2000);
       setData(r);
     } catch(e) { setErr(e.message); }
@@ -720,9 +746,22 @@ function ContentStudioTool({name, ctx}) {
           <h2 style={{fontFamily:"'DM Serif Display',serif",fontSize:36,color:C.cream,marginTop:12,marginBottom:8}}>Content Studio</h2>
           <P color={C.muted}>Generate platform-optimized content across Instagram, TikTok, LinkedIn, Twitter and YouTube in one go.</P>
         </div>
-        <div style={{marginBottom:20,display:"flex",gap:10,flexWrap:"wrap",alignItems:"center"}}>
-          <input value={topic} onChange={e=>setTopic(e.target.value)} placeholder="Content topic or theme (e.g. New collection launch, Behind the scenes…)" style={{...inp(),width:380}}/>
-          <select value={platform} onChange={e=>setPlatform(e.target.value)} style={{...inp(),width:160,cursor:"pointer"}}>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
+          <div>
+            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.sandD,letterSpacing:"0.2em",marginBottom:6}}>BRAND NAME *</div>
+            <input value={brandName} onChange={e=>setBrandName(e.target.value)} placeholder="e.g. The Mused Studio" style={{width:"100%",padding:"11px 14px",background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.12)",color:C.cream,fontFamily:"Georgia,serif",fontSize:14}}/>
+          </div>
+          <div>
+            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.sandD,letterSpacing:"0.2em",marginBottom:6}}>CONTENT TOPIC (OPTIONAL)</div>
+            <input value={topic} onChange={e=>setTopic(e.target.value)} placeholder="e.g. New collection launch, Behind the scenes…" style={{width:"100%",padding:"11px 14px",background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.12)",color:C.cream,fontFamily:"Georgia,serif",fontSize:14}}/>
+          </div>
+        </div>
+        <div style={{marginBottom:12}}>
+          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.sandD,letterSpacing:"0.2em",marginBottom:6}}>BRAND CONTEXT *</div>
+          <textarea value={brandCtx} onChange={e=>setBrandCtx(e.target.value)} rows={3} placeholder="Describe the brand: what they do, who they serve, what makes them different…" style={{width:"100%",padding:"11px 14px",background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.12)",color:C.cream,fontFamily:"Georgia,serif",fontSize:14,resize:"vertical"}}/>
+        </div>
+        <div style={{marginBottom:20,display:"flex",gap:10,alignItems:"center"}}>
+          <select value={platform} onChange={e=>setPlatform(e.target.value)} style={{padding:"11px 14px",background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.12)",color:C.cream,fontFamily:"'Barlow Condensed',sans-serif",fontSize:11,letterSpacing:"0.1em",cursor:"pointer",width:180}}>
             <option value="all">All Platforms</option>
             <option value="Instagram">Instagram</option>
             <option value="TikTok">TikTok</option>
@@ -801,61 +840,73 @@ function LeadQualifierTool() {
       </div>
     </div>
   );
-  const Field = ({label,children}) => <div style={{marginBottom:14}}><div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.sandD,letterSpacing:"0.2em",marginBottom:6}}>{label}</div>{children}</div>;
+  const lqInp = {width:"100%",padding:"11px 14px",background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.12)",color:C.cream,fontFamily:"Georgia,serif",fontSize:14};
+  const lqSel = {...lqInp,cursor:"pointer",fontFamily:"'Barlow Condensed',sans-serif",fontSize:12,letterSpacing:"0.06em"};
+  const lqLbl = {fontFamily:"'Barlow Condensed',sans-serif",fontSize:9,fontWeight:700,color:C.sandD,letterSpacing:"0.2em",marginBottom:6,display:"block"};
   return (
     <div style={{padding:"28px 32px",height:"calc(100vh - 65px)",overflow:"auto"}}>
-      <div style={{maxWidth:980,margin:"0 auto"}}>
-        <div style={{marginBottom:32}}>
+      <div style={{maxWidth:900,margin:"0 auto"}}>
+        <div style={{marginBottom:24}}>
           <h2 style={{fontFamily:"'DM Serif Display',serif",fontSize:36,color:C.cream,marginTop:12,marginBottom:8}}>Lead Qualifier</h2>
           <P color={C.muted}>Score incoming leads on fit and intent to identify Marketing Qualified Leads (MQLs) ready to convert.</P>
         </div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:20}}>
-          <Field label="BRAND / COMPANY NAME *"><input value={form.brand} onChange={e=>upd("brand",e.target.value)} placeholder="e.g. Lumina Studio" style={inp()}/></Field>
-          <Field label="INDUSTRY"><input value={form.industry} onChange={e=>upd("industry",e.target.value)} placeholder="e.g. Photography, Fashion, Tech" style={inp()}/></Field>
-          <Field label="MAIN GOAL">
-            <select value={form.goal} onChange={e=>upd("goal",e.target.value)} style={{...inp(),cursor:"pointer"}}>
-              <option value="">Select goal…</option>
-              <option>Launch a new brand</option>
-              <option>Rebrand / refresh existing brand</option>
-              <option>Improve brand strategy</option>
-              <option>Create content / campaigns</option>
-              <option>Just exploring</option>
-            </select>
-          </Field>
-          <Field label="BUDGET RANGE">
-            <select value={form.budget} onChange={e=>upd("budget",e.target.value)} style={{...inp(),cursor:"pointer"}}>
-              <option value="">Select budget…</option>
-              <option>Under $500</option>
-              <option>$500 – $2,000</option>
-              <option>$2,000 – $5,000</option>
-              <option>$5,000 – $10,000</option>
-              <option>$10,000+</option>
-            </select>
-          </Field>
-          <Field label="TIMELINE">
-            <select value={form.timeline} onChange={e=>upd("timeline",e.target.value)} style={{...inp(),cursor:"pointer"}}>
-              <option value="">Select timeline…</option>
-              <option>ASAP (under 1 month)</option>
-              <option>1 – 3 months</option>
-              <option>3 – 6 months</option>
-              <option>6 months+</option>
-              <option>Just exploring</option>
-            </select>
-          </Field>
-          <Field label="HOW THEY FOUND YOU">
-            <select value={form.source} onChange={e=>upd("source",e.target.value)} style={{...inp(),cursor:"pointer"}}>
-              <option value="">Select source…</option>
-              <option>Instagram</option>
-              <option>TikTok</option>
-              <option>LinkedIn</option>
-              <option>Referral</option>
-              <option>Google</option>
-              <option>Other</option>
-            </select>
-          </Field>
+        <div style={{display:"flex",flexDirection:"column",gap:14,marginBottom:20}}>
+          <div style={{display:"flex",gap:14}}>
+            <div style={{flex:1}}><label style={lqLbl}>BRAND / COMPANY NAME *</label><input value={form.brand} onChange={e=>upd("brand",e.target.value)} placeholder="e.g. Lumina Studio" style={lqInp}/></div>
+            <div style={{flex:1}}><label style={lqLbl}>INDUSTRY</label><input value={form.industry} onChange={e=>upd("industry",e.target.value)} placeholder="e.g. Photography, Fashion, Tech" style={lqInp}/></div>
+          </div>
+          <div style={{display:"flex",gap:14}}>
+            <div style={{flex:1}}>
+              <label style={lqLbl}>MAIN GOAL</label>
+              <select value={form.goal} onChange={e=>upd("goal",e.target.value)} style={lqSel}>
+                <option value="">Select goal…</option>
+                <option>Launch a new brand</option>
+                <option>Rebrand / refresh existing brand</option>
+                <option>Improve brand strategy</option>
+                <option>Create content / campaigns</option>
+                <option>Just exploring</option>
+              </select>
+            </div>
+            <div style={{flex:1}}>
+              <label style={lqLbl}>BUDGET RANGE</label>
+              <select value={form.budget} onChange={e=>upd("budget",e.target.value)} style={lqSel}>
+                <option value="">Select budget…</option>
+                <option>Under $500</option>
+                <option>$500 – $2,000</option>
+                <option>$2,000 – $5,000</option>
+                <option>$5,000 – $10,000</option>
+                <option>$10,000+</option>
+              </select>
+            </div>
+          </div>
+          <div style={{display:"flex",gap:14}}>
+            <div style={{flex:1}}>
+              <label style={lqLbl}>TIMELINE</label>
+              <select value={form.timeline} onChange={e=>upd("timeline",e.target.value)} style={lqSel}>
+                <option value="">Select timeline…</option>
+                <option>ASAP (under 1 month)</option>
+                <option>1 – 3 months</option>
+                <option>3 – 6 months</option>
+                <option>6 months+</option>
+                <option>Just exploring</option>
+              </select>
+            </div>
+            <div style={{flex:1}}>
+              <label style={lqLbl}>HOW THEY FOUND YOU</label>
+              <select value={form.source} onChange={e=>upd("source",e.target.value)} style={lqSel}>
+                <option value="">Select source…</option>
+                <option>Instagram</option>
+                <option>TikTok</option>
+                <option>LinkedIn</option>
+                <option>Referral</option>
+                <option>Google</option>
+                <option>Other</option>
+              </select>
+            </div>
+          </div>
+          <div><label style={lqLbl}>BRAND BRIEF *</label><textarea value={form.brief} onChange={e=>upd("brief",e.target.value)} rows={4} placeholder="Describe their brand, what they do, who they serve…" style={lqInp}/></div>
+          <div><label style={lqLbl}>MAIN CHALLENGE</label><textarea value={form.challenge} onChange={e=>upd("challenge",e.target.value)} rows={3} placeholder="What's their biggest brand or marketing challenge right now?" style={lqInp}/></div>
         </div>
-        <Field label="BRAND BRIEF *"><textarea value={form.brief} onChange={e=>upd("brief",e.target.value)} rows={4} placeholder="Describe their brand, what they do, who they serve…" style={inp()}/></Field>
-        <Field label="MAIN CHALLENGE"><textarea value={form.challenge} onChange={e=>upd("challenge",e.target.value)} rows={3} placeholder="What's their biggest brand or marketing challenge right now?" style={inp()}/></Field>
         <div style={{marginBottom:24}}><Err msg={err}/><BtnPrimary onClick={qualify} disabled={loading}>{loading?"QUALIFYING LEAD…":"✦ QUALIFY THIS LEAD"}</BtnPrimary></div>
         {loading && <Spinner label="Lead Score"/>}
         {!loading && result && (
@@ -1137,9 +1188,9 @@ function Studio() {
       </header>
 
       {(tab==="studio"||tab==="client") && <StrategyBuilder isStudio={tab==="studio"} key={tab}/>}
-      {tab==="dna"     && <BrandDNATool name={activeName} ctx={activeCtx}/>}
-      {tab==="ads"     && <AdCampaignsTool name={activeName} ctx={activeCtx}/>}
-      {tab==="content" && <ContentStudioTool name={activeName} ctx={activeCtx}/>}
+      {tab==="dna"     && <BrandDNATool/>}
+      {tab==="ads"     && <AdCampaignsTool/>}
+      {tab==="content" && <ContentStudioTool/>}
       {tab==="leads"   && <LeadQualifierTool/>}
       {tab==="cases"   && <CaseStudies/>}
     </div>
